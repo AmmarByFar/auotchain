@@ -1,5 +1,5 @@
 import {
-  Card,
+  AlphaCard,
   Page,
   Layout,
   TextContainer,
@@ -20,7 +20,7 @@ export default function HomePage() {
       <TitleBar title="App name" primaryAction={null} />
       <Layout>
         <Layout.Section>
-          <Card sectioned>
+          <AlphaCard sectioned>
             <Stack
               wrap={false}
               spacing="extraTight"
@@ -77,7 +77,7 @@ export default function HomePage() {
                 </div>
               </Stack.Item>
             </Stack>
-          </Card>
+          </AlphaCard>
         </Layout.Section>
         <Layout.Section>
           <ProductsCard />
