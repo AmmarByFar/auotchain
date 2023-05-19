@@ -28,21 +28,21 @@ app.get(shopify.config.auth.path, shopify.auth.begin());
 app.get(
   shopify.config.auth.callbackPath,
   shopify.auth.callback(),async (req, res, next) => {
-    try {
-      // Create the webhook
-      const webhook = new shopify.api.rest.Webhook({session: res.locals.shopify.session});
-      webhook.address = "https://autochain.shop/api/webhooks/orders/create"; // replace with your endpoint
-      webhook.topic = "orders/create"; // change the topic to 'orders/create'
-      webhook.format = "json";
-      await webhook.save({
-        update: true,
-      });
+    // try {
+    //   // Create the webhook
+    //   const webhook = new shopify.api.rest.Webhook({session: res.locals.shopify.session});
+    //   webhook.address = "https://autochain.shop/api/webhooks/orders/create"; // replace with your endpoint
+    //   webhook.topic = "orders/create"; // change the topic to 'orders/create'
+    //   webhook.format = "json";
+    //   await webhook.save({
+    //     update: true,
+    //   });
 
-      next();
-    } catch (error) {
-      console.log(`Failed to create webhook: ${error.message}`);
-      next(error);
-    }
+    //   next();
+    // } catch (error) {
+    //   console.log(`Failed to create webhook: ${error.message}`);
+    //   next(error);
+    // }
   },
   shopify.redirectToShopifyOrAppRoot()
 );
