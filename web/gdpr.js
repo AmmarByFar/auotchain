@@ -84,23 +84,23 @@ export default {
     },
   },
 
-  // The following webhooks are not mandatory, but you can add them if you need
-  ORDERS_PAID: {
-    deliveryMethod: DeliveryMethod.Http,
-    callbackUrl: "/api/webhooks",
-    callback: async (topic, shop, body, webhookId) => {
-      const payload = JSON.parse(body);
+  // // The following webhooks are not mandatory, but you can add them if you need
+  // ORDERS_PAID: {
+  //   deliveryMethod: DeliveryMethod.Http,
+  //   callbackUrl: "/api/webhooks",
+  //   callback: async (topic, shop, body, webhookId) => {
+  //     const payload = JSON.parse(body);
       
-      // Use findSessionsByShop() from shopify-app-session-storage-mysql to acquire sesion token
-      // Get product thresholds and reorder amounts pertaining to shop from database
+  //     // Use findSessionsByShop() from shopify-app-session-storage-mysql to acquire sesion token
+  //     // Get product thresholds and reorder amounts pertaining to shop from database
       
-      // Use session token to make API call to Shopify to get inventory levels
+  //     // Use session token to make API call to Shopify to get inventory levels
 
-      // Check inventory levels against product thresholds
+  //     // Check inventory levels against product thresholds
 
-      // If inventory levels are below product thresholds, create new order to supplier for reorder amount
+  //     // If inventory levels are below product thresholds, create new order to supplier for reorder amount
       
 
-    },
-  },
+  //   },
+  // },
 };

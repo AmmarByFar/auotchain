@@ -1,15 +1,20 @@
 import { Page, Card, IndexTable, Avatar, TextStyle } from "@shopify/polaris";
-import { useState, useCallback } from "react";
-
-// Data fetch would be done in real application
-const users = [
-  { id: '1', username: 'user1', shopDomain: 'domain1', userRole: 'Supplier' },
-  { id: '2', username: 'user2', shopDomain: 'domain2', userRole: 'Warehouse Manager' },
-  // ...
-];
+import { useState, useEffect, useCallback } from "react";
+import { useAppQuery, useAuthenticatedFetch } from "../hooks";
 
 export default function UserManagement() {
+  const [users, setUsers] = useState([]);
   const [selectedItems, setSelectedItems] = useState([]);
+
+  const fetch = useAuthenticatedFetch();
+
+  // Fetch users from the API
+  useEffect(() => {
+    fetch('/api/users')
+      .then(response => response.json())
+      .then(data => setUsers(data))
+      .catch(error => console.error('Error fetching users:', error));
+  }, []);  // The empty array means this effect will only run once, after the first render
 
   const handleSelectionChange = useCallback(
     (selected) => setSelectedItems(selected),
@@ -55,7 +60,7 @@ export default function UserManagement() {
               ? "All"
               : selectedItems.length
           }
-          onSelectionChange={handleSelectionChange}q
+          onSelectionChange={handleSelectionChange}
           headings={[
             { title: "Avatar" },
             { title: "Username" },

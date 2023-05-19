@@ -1,6 +1,6 @@
-const Sequelize = require('sequelize');
-const db = require('../config/database');
-const User = require('./models/User'); // make sure this path is correct
+import Sequelize from 'sequelize';
+import db from '../config/database.js';
+import User from './user.js'; // make sure this path is correct
 
 const Order = db.define('Order', {
   id: {
@@ -58,4 +58,4 @@ const Order = db.define('Order', {
 Order.belongsTo(User, {as: 'Supplier', foreignKey: 'supplierID'});
 Order.belongsTo(User, {as: 'WarehouseManager', foreignKey: 'warehouseManagerID'});
 
-module.exports = Order;
+export default Order;

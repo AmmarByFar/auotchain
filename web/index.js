@@ -9,6 +9,19 @@ import productCreator from "./product-creator.js";
 import GDPRWebhookHandlers from "./gdpr.js";
 import { setUncaughtExceptionCaptureCallback } from "process";
 
+import db from './config/database.js';
+import User from './models/user.js';
+import Order from "./models/order.js";
+// import User from "./models/user.js";
+// import Order from "./models/order.js";
+
+db.sync()
+  .then(() => {
+    console.log('Database & tables created!');
+    app.listen(3000, () => console.log('Server is running on port 3000'));
+  })
+  .catch((err) => console.log('Error occurred during the database sync operation', err));
+
 //const UserSettings = require('./models/userSettings'); 
 
 const PORT = parseInt(
@@ -108,6 +121,17 @@ app.post(
 app.use("/api/*", shopify.validateAuthenticatedSession());
 
 app.use(express.json());
+
+app.get('/api/users', async (_req, res) => {
+  try {
+    const users = await User.findAll();
+    res.json(users);
+  } catch (error) {
+    console.error('Failed to fetch users:', error);
+    res.status(500).json({ message: 'Failed to fetch users' });
+  }
+});
+
 
 app.get("/api/products/count", async (_req, res) => {
   const countData = await shopify.api.rest.Product.count({

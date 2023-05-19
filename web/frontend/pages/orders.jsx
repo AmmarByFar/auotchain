@@ -1,22 +1,22 @@
 import React, { useState, useEffect } from 'react';
-//import axios from 'axios';
+import axios from 'axios';
 import { Page, DataTable } from '@shopify/polaris';
 
 const OrdersList = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
-//   useEffect(() => {
-//     axios.get('http://localhost:3000/api/orders')
-//       .then(response => {
-//         setOrders(response.data);
-//         setLoading(false);
-//       })
-//       .catch(error => {
-//         console.error("Error fetching data: ", error);
-//         setLoading(false);
-//       });
-//   }, []);
+  useEffect(() => {
+    axios.get('/api/orders')
+      .then(response => {
+        setOrders(response.data);
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error("Error fetching data: ", error);
+        setLoading(false);
+      });
+  }, []);
 
   const rows = orders.map(order => [
     order.id,
@@ -49,7 +49,7 @@ const OrdersList = () => {
   ];
 
   return (
-    <Page title="Orders List">
+    <Page title="Purchase Orders">
       {loading 
         ? <div>Loading...</div>
         : <DataTable

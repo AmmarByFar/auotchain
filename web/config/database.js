@@ -1,6 +1,6 @@
-const Sequelize = require('sequelize');
+import Sequelize from 'sequelize';
 
-module.exports = new Sequelize('database', 'username', 'password', {
-  host: 'localhost',
+export default new Sequelize('autochain', 'root', 'ama4life1992', {
+  host: '192.168.4.221',
   dialect: 'mysql'
 });

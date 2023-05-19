@@ -15,8 +15,11 @@
     "@shopify/app": "3.45.4",
     "@shopify/cli": "3.45.4",
     "@shopify/shopify-app-session-storage-mysql": "^1.1.6",
+    "axios": "^1.4.0",
     "express-jwt": "^8.4.1",
-    "jsonwebtoken": "^9.0.0"
+    "jsonwebtoken": "^9.0.0",
+    "sequelize": "^6.31.1",
+    "sqlite3": "^5.1.6"
   },
   "author": "Mrsyr"
 }
