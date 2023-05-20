@@ -25,7 +25,7 @@ export default function App() {
                   destination: "/orders",
                 },
                 {
-                  label: "Manage Users",
+                  label: "Inventory Personnel",
                   destination: "/manageusers",
                 },
                 {

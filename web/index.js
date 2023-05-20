@@ -124,7 +124,12 @@ app.use(express.json());
 
 app.get('/api/users', async (_req, res) => {
   try {
-    const users = await User.findAll();
+    const shopDomain = res.locals.shopify.session.shop;
+    console.log(shopDomain);
+    const users = await User.findAll({
+      where: { shopDomain },
+      attributes: ['id', 'UserName', 'UserRole'],
+    });
     res.json(users);
   } catch (error) {
     console.error('Failed to fetch users:', error);
@@ -132,6 +137,41 @@ app.get('/api/users', async (_req, res) => {
   }
 });
 
+app.get('/api/orders', async (_req, res) => {
+  try {
+    const shopDomain = res.locals.shopify.session.shop
+    console.log(shopDomain);
+    const orders = await Order.findAll({
+      attributes: [
+        'productID',
+        'SKU',
+        'orderAmount',
+        'orderStatus',
+        'orderDate',
+        'deliveryDate',
+        'deliveryTracking',
+        'deliveryNotes'
+      ],
+      include: [
+        { 
+          model: User,
+          as: 'Supplier', 
+          attributes: ['username']
+        },
+        {
+          model: User,
+          as: 'WarehouseManager',
+          attributes: ['username']
+        }
+      ],
+      where: { shopDomain }
+    });
+    res.json(orders);
+  } catch (error) {
+    console.error('Failed to fetch orders:', error);
+    res.status(500).json({ message: 'Failed to fetch orders' });
+  }
+});
 
 app.get("/api/products/count", async (_req, res) => {
   const countData = await shopify.api.rest.Product.count({
