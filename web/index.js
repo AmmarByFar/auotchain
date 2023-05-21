@@ -122,6 +122,34 @@ app.use("/api/*", shopify.validateAuthenticatedSession());
 
 app.use(express.json());
 
+app.post('/api/users', async (req, res) => {
+  const { username, shopDomain, userRole } = req.body;
+  try {
+    const tempPassword = generateTempPassword(); 
+    const user = await User.create({
+      username,
+      password: tempPassword,
+      shopDomain,
+      userRole
+    });
+
+    // TODO: Send an email to the new user with instructions to change their password
+
+    res.status(201).json({
+      message: 'User created successfully'
+    });
+  } catch (error) {
+    console.error('Failed to create user', error);
+    res.status(500).json({ error: 'Failed to create user' });
+  }
+});
+
+// Function to generate a random password
+function generateTempPassword() {
+  // Generate a random 8-character alphanumeric string
+  return Math.random().toString(36).slice(-8);
+}
+
 app.get('/api/users', async (_req, res) => {
   try {
     const shopDomain = res.locals.shopify.session.shop;
