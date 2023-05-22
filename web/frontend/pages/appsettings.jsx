@@ -1,18 +1,85 @@
-import { Page, Layout, TextContainer, Text, TextField, VerticalStack, HorizontalGrid, Box, AlphaCard } from "@shopify/polaris";
+import { Page, Layout, TextContainer, Text, TextField, VerticalStack, HorizontalGrid, Box, AlphaCard, Toast, Frame } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
+import { useAppQuery, useAuthenticatedFetch } from "../hooks";
+import { useState, useEffect } from 'react';
 
 export default function AppSettings() {
-  // const [value, setValue] = useState('1');
 
-  // const handleChange = useCallback(
-  //   (newValue: string) => setValue(newValue),
-  //   [],
-  // );
+  const [reorderLevel, setReorderLevel] = useState("");
+  const [reorderAmount, setReorderAmount] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [toastProps, setToastProps] = useState({ content: null });
+  const [isFormModified, setIsFormModified] = useState(false);
+
+  const [initialReorderLevel, setInitialReorderLevel] = useState("");
+  const [initialReorderAmount, setInitialReorderAmount] = useState("");
+
+  const fetch = useAuthenticatedFetch();
+
+  useEffect(() => {
+    const getInitialSettings = async () => {
+      const response = await fetch('/api/appsettings');
+      const data = await response.json();
+      if(data.settings) {
+        setInitialReorderLevel(data.settings.reorderLevel.toString());
+        setInitialReorderAmount(data.settings.reorderAmount.toString());
+        setReorderLevel(data.settings.reorderLevel.toString());
+        setReorderAmount(data.settings.reorderAmount.toString());
+      }
+    }
+    getInitialSettings();
+  }, []);
+  
+
+  const handleReorderLevelChange = (value) => {
+    setReorderLevel(value);
+    checkFormModification();
+  };
+
+  const handleReorderAmountChange = (value) => {
+    setReorderAmount(value);
+    checkFormModification();
+  };
+
+  const checkFormModification = () => {
+    if (reorderLevel !== initialReorderLevel || reorderAmount !== initialReorderAmount) {
+      setIsFormModified(true);
+    } else {
+      setIsFormModified(false);
+    }
+  };
+
+  const handleSubmit = async () => {
+    setIsLoading(true);
+    const response = await fetch('/api/appsettings', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ reorderLevel, reorderAmount }),
+    });
+
+    if(response.ok) {
+      setToastProps({ content: "Settings saved successfully!" });
+    } else {
+      setToastProps({
+        content: "There was an error saving your settings",
+        error: true,
+      });
+    }
+    setIsLoading(false);
+  };
+
+  const toastMarkup = toastProps.content && (
+    <Toast {...toastProps} onDismiss={() => setToastProps({ content: null })} />
+  );
 
   return (
+    <Frame>
+    {toastMarkup}
     <Page
       divider
-      primaryAction={{ content: "Save Settings", disabled: true }}
+      primaryAction={{ content: "Save Settings", disabled: !isFormModified, loading: isLoading, onAction: () => handleSubmit() }}
       secondaryActions={[
         {
           content: "Default",
@@ -42,15 +109,15 @@ export default function AppSettings() {
               <TextField
                 label="Reorder level"
                 type="number"
-                // value={value}
-                // onChange={handleChange}
+                value={reorderLevel}
+                onChange={handleReorderLevelChange}
                 autoComplete="off"
               />
               <TextField
                 label="Amount to reorder"
                 type="number"
-                // value={value}
-                // onChange={handleChange}
+                value={reorderAmount}
+                onChange={handleReorderAmountChange}
                 autoComplete="off"
               />
             </VerticalStack>
@@ -80,5 +147,6 @@ export default function AppSettings() {
         </HorizontalGrid>
       </VerticalStack>
     </Page>
+    </Frame>
   )
 }

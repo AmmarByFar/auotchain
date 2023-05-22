@@ -24,7 +24,7 @@ export default function UserManagement() {
   };
 
   const rowMarkup = users.map(
-    ({ id, UserName, UserRole }, index) => (
+    ({ id, UserName, UserRole, Email }, index) => (
       <IndexTable.Row
         id={id}
         key={id}
@@ -38,6 +38,7 @@ export default function UserManagement() {
           <TextStyle variation="strong">{UserName}</TextStyle>
         </IndexTable.Cell>
         <IndexTable.Cell>{UserRole}</IndexTable.Cell>
+        <IndexTable.Cell>{Email}</IndexTable.Cell>
       </IndexTable.Row>
     )
   );
@@ -77,6 +78,7 @@ export default function UserManagement() {
             { title: "Avatar" },
             { title: "Username" },
             { title: "User Role" },
+            { title: "Email" },
           ]}
         >
           {rowMarkup}

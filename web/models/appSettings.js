@@ -1,7 +1,7 @@
 import Sequelize from 'sequelize';
 import db from '../config/database.js';
 
-const UserSettings = db.define('UserSettings', {
+const AppSettings = db.define('AppSettings', {
   id: {
     type: Sequelize.INTEGER,
     autoIncrement: true,
@@ -15,7 +15,11 @@ const UserSettings = db.define('UserSettings', {
   reorderLevel: {
     type: Sequelize.INTEGER,
     allowNull: true
+  },
+  reorderAmount: {
+    type: Sequelize.INTEGER,
+    allowNull: true
   }
 });
 
-module.exports = UserSettings;
+export default AppSettings;
