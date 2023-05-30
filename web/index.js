@@ -3,11 +3,12 @@ import { join } from "path";
 import { readFileSync } from "fs";
 import express from "express";
 import serveStatic from "serve-static";
+import crypto from "crypto";
+import bodyParser from "body-parser";
 
 import shopify from "./shopify.js";
 import productCreator from "./product-creator.js";
 import GDPRWebhookHandlers from "./gdpr.js";
-import appwebhooks from "./appwebhooks.js";
 import { setUncaughtExceptionCaptureCallback } from "process";
 
 import db from './config/database.js';
@@ -38,83 +39,122 @@ app.get(shopify.config.auth.path, shopify.auth.begin());
 app.get(
   shopify.config.auth.callbackPath,
   shopify.auth.callback(),async (req, res, next) => {
-    // try {
-    //   // Create the webhook
-    //   const webhook = new shopify.api.rest.Webhook({session: res.locals.shopify.session});
-    //   webhook.address = "https://stats-mariah-trails-creating.trycloudflare.com/api/webhooks/orders/create"; // replace with your endpoint
-    //   webhook.topic = "orders/create"; // change the topic to 'orders/create'
-    //   webhook.format = "json";
-    //   await webhook.save({
-    //     update: true,
-    //   });
+    try {
+      // Create the webhook
+      const webhook = new shopify.api.rest.Webhook({session: res.locals.shopify.session});
+      webhook.address = "https://rack-pepper-personals-double.trycloudflare.com/webhooks/orders/create"; // replace with your endpoint
+      webhook.topic = "orders/create"; // change the topic to 'orders/create'
+      webhook.format = "json";
+      await webhook.save({
+        update: true,
+      });
 
-    //   next();
-    // } catch (error) {
-    //   console.log(`Failed to create webhook: ${error.message}`);
-    //   next(error);
-    // }
+      next();
+    } catch (error) {
+      console.log(`Failed to create webhook: ${error.message}`);
+      next(error);
+    }
+
+    try {
+      const webhooksResponse  = await shopify.api.rest.Webhook.all({session: res.locals.shopify.session});
+
+      if (webhooksResponse.data) {
+        webhooksResponse.data.forEach(webhook => {
+        console.log(webhook);
+        });
+      }
+
+    } catch (error) {
+      console.log(`Failed to retrieve webhooks: ${error.message}`);
+      next(error);
+    }
+
   },
   shopify.redirectToShopifyOrAppRoot()
 );
 
 app.post(
   shopify.config.webhooks.path,
-  shopify.processWebhooks({ webhookHandlers: {...GDPRWebhookHandlers, ...appwebhooks} })
+  shopify.processWebhooks({ webhookHandlers: GDPRWebhookHandlers })
 );
 
-// app.post('/api/webhooks/orders/create', async (req, res) => {
-//   res.status(200).end();
-//   try{
-//     const order = req.body;
-//     console.log("orders/create webhook called!");
-//     console.log("req object: " + req);
-//     console.log("res object: " + res);
-//     const lineItems = order.line_items;
+const CLIENT_SECRET = 'fb553e28b395cc9f8ed35832edb45fee';
+
+const verifyWebhook = (data, hmacHeader) => {
+  const digest = crypto
+    .createHmac('sha256', CLIENT_SECRET)
+    .update(data, 'utf8')
+    .digest('base64');
+  return digest === hmacHeader;
+};
+
+const rawBodyParser = bodyParser.raw({type: 'application/json'});
+
+app.post('/webhooks/orders/create', rawBodyParser, async (req, res) => {
+  console.log('received webhook: orders/create');
+  res.status(200).end();
+
+   // Verify webhook signature
+   const hmacHeader = req.get('X-Shopify-Hmac-SHA256');
+   if (!verifyWebhook(req.body.toString(), hmacHeader)) {
+     console.error('Failed to verify webhook signature');
+     //res.status(401).send('Signature verification failed');
+     return;
+   }
+
+   console.log('hmac verified');
+
+  try{
+    const order = req.body;
+    console.log("orders/create webhook called!");
+    console.log("req object: " + req);
+    console.log("res object: " + res);
+    const lineItems = order.line_items;
   
-//     // Loop through lineItems to get product details and quantity
-//     for (let item of lineItems) {
-//       const productId = item.product_id;
-//       const variantId = item.variant_id;
-//       const quantity = item.quantity;
+    // Loop through lineItems to get product details and quantity
+    for (let item of lineItems) {
+      const productId = item.product_id;
+      const variantId = item.variant_id;
+      const quantity = item.quantity;
   
-//       // Fetch product details
-//       const product = await shopify.api.rest.Product.find({
-//         session: res.locals.shopify.session,
-//         id: productId,
-//       });
+      // Fetch product details
+      const product = await shopify.api.rest.Product.find({
+        session: res.locals.shopify.session,
+        id: productId,
+      });
   
-//       // Fetch inventory level of the variant
-//       const inventoryLevel = await shopify.api.rest.InventoryLevel.all({
-//         session: res.locals.shopify.session,
-//         inventory_item_id: variantId,
-//       });
+      // Fetch inventory level of the variant
+      const inventoryLevel = await shopify.api.rest.InventoryLevel.all({
+        session: res.locals.shopify.session,
+        inventory_item_id: variantId,
+      });
   
-//       if(product != null && inventoryLevel != null){
-//         console.log(`Product: ${product.title}, Quantity Ordered: ${quantity}, Inventory Level: ${inventoryLevel.data[0].available}`);
-//         try {
-//           const appSettings = await AppSettings.findOne({
-//             where: {
-//               shopDomain: res.locals.shopify.shop,
-//             },
-//           });
+      if(product != null && inventoryLevel != null){
+        console.log(`Product: ${product.title}, Quantity Ordered: ${quantity}, Inventory Level: ${inventoryLevel.data[0].available}`);
+        try {
+          const appSettings = await AppSettings.findOne({
+            where: {
+              shopDomain: res.locals.shopify.shop,
+            },
+          });
       
-//           if (!appSettings) {
-//             console.log("no appSettings found!");
-//           } else {
-//             console.log("Shop's confiugured reorder level: " + appSettings.reorderLevel);
-//           }
-//         } catch (err) {
-//           console.error(err);
-//           res.status(500).send('An error occurred');
-//         }
-//       }
-//     }
-//   }
-//   catch (error) {
-//     console.error('Failed at orders/create webhook', error);
-//   }
+          if (!appSettings) {
+            console.log("no appSettings found!");
+          } else {
+            console.log("Shop's confiugured reorder level: " + appSettings.reorderLevel);
+          }
+        } catch (err) {
+          console.error(err);
+          res.status(500).send('An error occurred');
+        }
+      }
+    }
+  }
+  catch (error) {
+    console.error('Failed at orders/create webhook', error);
+  }
   
-// });
+});
 
 // If you are adding routes outside of the /api path, remember to
 // also add a proxy rule for them in web/frontend/vite.config.js

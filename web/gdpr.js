@@ -85,11 +85,13 @@ export default {
   },
 
   // // The following webhooks are not mandatory, but you can add them if you need
-  // ORDERS_PAID: {
+  // ORDERS_CREATE: {
   //   deliveryMethod: DeliveryMethod.Http,
-  //   callbackUrl: "/api/webhooks",
+  //   callbackUrl: "/api/webhooks/orders/create",
   //   callback: async (topic, shop, body, webhookId) => {
   //     const payload = JSON.parse(body);
+  //     console.log("orders/create webhook called!");
+  //     console.log("Payload: " + payload);
       
   //     // Use findSessionsByShop() from shopify-app-session-storage-mysql to acquire sesion token
   //     // Get product thresholds and reorder amounts pertaining to shop from database
