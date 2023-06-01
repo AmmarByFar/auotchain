@@ -15,6 +15,7 @@ import AppSettings from "./models/appSettings.js"
 import shopify from "./shopify.js";
 import productCreator from "./product-creator.js";
 import GDPRWebhookHandlers from "./gdpr.js";
+import ordersWebhook from "./ordersWebhook.js";
 
 import * as userController from './controllers/userController.js';
 import { handleOrderCreate } from './controllers/webhookController.js';
@@ -43,21 +44,21 @@ app.get(shopify.config.auth.path, shopify.auth.begin());
 app.get(
   shopify.config.auth.callbackPath,
   shopify.auth.callback(),async (req, res, next) => {
-    try {
-      // Create the webhook
-      const webhook = new shopify.api.rest.Webhook({session: res.locals.shopify.session});
-      webhook.address = "https://echo-sight-trash-syndrome.trycloudflare.com/webhooks/orders/create"; // replace with your endpoint
-      webhook.topic = "orders/create"; // change the topic to 'orders/create'
-      webhook.format = "json";
-      await webhook.save({
-        update: true,
-      });
+    // try {
+    //   // Create the webhook
+    //   const webhook = new shopify.api.rest.Webhook({session: res.locals.shopify.session});
+    //   webhook.address = "https://echo-sight-trash-syndrome.trycloudflare.com/webhooks/orders/create"; // replace with your endpoint
+    //   webhook.topic = "orders/create"; // change the topic to 'orders/create'
+    //   webhook.format = "json";
+    //   await webhook.save({
+    //     update: true,
+    //   });
 
-      next();
-    } catch (error) {
-      console.log(`Failed to create webhook: ${error.message}`);
-      next(error);
-    }
+    //   next();
+    // } catch (error) {
+    //   console.log(`Failed to create webhook: ${error.message}`);
+    //   next(error);
+    // }
 
     try {
       const webhooksResponse  = await shopify.api.rest.Webhook.all({session: res.locals.shopify.session});
@@ -79,12 +80,12 @@ app.get(
 
 app.post(
   shopify.config.webhooks.path,
-  shopify.processWebhooks({ webhookHandlers: GDPRWebhookHandlers })
+  shopify.processWebhooks({ webhookHandlers: {...GDPRWebhookHandlers, ...ordersWebhook} })
 );
 
 const rawBodyParser = bodyParser.raw({type: 'application/json'});
 
-app.post('/webhooks/orders/create', rawBodyParser, handleOrderCreate);
+//app.post('/webhooks/orders/create', rawBodyParser, handleOrderCreate);
 
 // If you are adding routes outside of the /api path, remember to
 // also add a proxy rule for them in web/frontend/vite.config.js

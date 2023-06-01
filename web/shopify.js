@@ -27,7 +27,7 @@ const shopify = shopifyApp({
     callbackPath: "/api/auth/callback",
   },
   webhooks: {
-    path: "/api/webhooks",
+    path: "/webhooks",
   },
   sessionStorage: new MySQLSessionStorage(
     'mysql://root:ama4life1992@192.168.4.221/autochain',
