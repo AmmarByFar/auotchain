@@ -3,6 +3,10 @@ import { shopifyApp } from "@shopify/shopify-app-express";
 import { MySQLSessionStorage } from '@shopify/shopify-app-session-storage-mysql';
 import { restResources } from "@shopify/shopify-api/rest/admin/2023-04";
 
+const dbUser = process.env.DB_USER;
+const dbPassword = process.env.DB_PASSWORD;
+const dbHost = process.env.DB_HOST;
+
 const DB_PATH = `${process.cwd()}/database.sqlite`;
 
 // The transactions with Shopify will always be marked as test transactions, unless NODE_ENV is production.
@@ -30,7 +34,7 @@ const shopify = shopifyApp({
     path: "/webhooks",
   },
   sessionStorage: new MySQLSessionStorage(
-    'mysql://root:ama4life1992@192.168.4.221/autochain',
+    `mysql://${dbUser}:${dbPassword}@${dbHost}/autochain`,
     {connectionPoolLimit: 10}, // optional
   ),
 });

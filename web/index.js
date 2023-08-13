@@ -1,4 +1,5 @@
 // @ts-check
+import 'dotenv/config'
 import { join } from "path";
 import { readFileSync } from "fs";
 import { setUncaughtExceptionCaptureCallback } from "process";
@@ -20,7 +21,6 @@ import ordersWebhook from "./ordersWebhook.js";
 import * as userController from './controllers/userController.js';
 import { handleOrderCreate } from './controllers/webhookController.js';
 import { getSettings, postSettings } from './controllers/settingsController.js';
-
 
 // TODO: REMOVE alter:true FROM BELOW BEFORE PUSHING TO PRODUCTION
 db.sync(/*{ alter: true }*/)
