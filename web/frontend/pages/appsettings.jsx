@@ -1,7 +1,8 @@
-import { Page, Layout, TextContainer, Text, TextField, VerticalStack, HorizontalGrid, Box, AlphaCard, Toast, Frame } from "@shopify/polaris";
+import { Page, Layout, TextContainer, Text, Card, Icon, Popover, TextField, VerticalStack, HorizontalGrid, Box, AlphaCard, Toast, Frame, Checkbox, DatePicker } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 import { useAppQuery, useAuthenticatedFetch } from "../hooks";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { CalendarMinor} from '@shopify/polaris-icons';
 
 export default function AppSettings() {
 
@@ -74,6 +75,54 @@ export default function AppSettings() {
     <Toast {...toastProps} onDismiss={() => setToastProps({ content: null })} />
   );
 
+  function nodeContainsDescendant(rootNode, descendant) {
+    if (rootNode === descendant) {
+      return true;
+    }
+    let parent = descendant.parentNode;
+    while (parent != null) {
+      if (parent === rootNode) {
+        return true;
+      }
+      parent = parent.parentNode;
+    }
+    return false;
+  }
+  const [visible, setVisible] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [{ month, year }, setDate] = useState({
+    month: selectedDate.getMonth(),
+    year: selectedDate.getFullYear(),
+  });
+  const formattedValue = selectedDate.toISOString().slice(0, 10);
+  const datePickerRef = useRef(null);
+  function isNodeWithinPopover(node) {
+    return datePickerRef?.current
+      ? nodeContainsDescendant(datePickerRef.current, node)
+      : false;
+  }
+  function handleInputValueChange() {
+    console.log("handleInputValueChange");
+  }
+  function handleOnClose({ relatedTarget }) {
+    setVisible(false);
+  }
+  function handleMonthChange(month, year) {
+    setDate({ month, year });
+  }
+  function handleDateSelection({ end: newSelectedDate }) {
+    setSelectedDate(newSelectedDate);
+    setVisible(false);
+  }
+  useEffect(() => {
+    if (selectedDate) {
+      setDate({
+        month: selectedDate.getMonth(),
+        year: selectedDate.getFullYear(),
+      });
+    }
+  }, [selectedDate]);
+
   return (
     <Frame>
     {toastMarkup}
@@ -100,7 +149,7 @@ export default function AppSettings() {
                 Inventory Reorder Levels
               </Text>
               <Text as="p" variant="bodyMd">
-                These values dicate when AutoChain will place a an order with a supplier to restock products crossing the reorder level.
+                Products will be flagged when inventory levels fall below these values.
               </Text>
             </VerticalStack>
           </Box>
@@ -113,13 +162,13 @@ export default function AppSettings() {
                 onChange={handleReorderLevelChange}
                 autoComplete="off"
               />
-              <TextField
+              {/* <TextField
                 label="Amount to reorder"
                 type="number"
                 value={reorderAmount}
                 onChange={handleReorderAmountChange}
                 autoComplete="off"
-              />
+              /> */}
             </VerticalStack>
           </AlphaCard>
         </HorizontalGrid>
@@ -131,17 +180,69 @@ export default function AppSettings() {
           >
             <VerticalStack gap="4">
               <Text as="h3" variant="headingMd">
-                Dimensions
+                Tracking
               </Text>
               <Text as="p" variant="bodyMd">
-                Interjambs are the rounded protruding bits of your puzzlie piece
+                Track sales begining at specified date. Sales prior to this date will not be tracked. Ensure inventory levels are accurate before enabling tracking.
               </Text>
             </VerticalStack>
           </Box>
           <AlphaCard roundedAbove="sm">
             <VerticalStack gap="4">
-              <TextField label="Horizontal" />
-              <TextField label="Interjamb ratio" />
+              <Checkbox label="Enable Tracking" />
+                <Popover
+                  active={visible}
+                  autofocusTarget="none"
+                  preferredAlignment="left"
+                  fullWidth
+                  preferInputActivator={false}
+                  preferredPosition="below"
+                  preventCloseOnChildOverlayClick
+                  onClose={handleOnClose}
+                  activator={
+                    <TextField
+                      role="combobox"
+                      label={"Start date"}
+                      prefix={<Icon source={CalendarMinor} />}
+                      value={formattedValue}
+                      onFocus={() => setVisible(true)}
+                      onChange={handleInputValueChange}
+                      autoComplete="off"
+                    />
+                  }
+                >
+                  <AlphaCard ref={datePickerRef}>
+                    <DatePicker
+                      month={month}
+                      year={year}
+                      selected={selectedDate}
+                      onMonthChange={handleMonthChange}
+                      onChange={handleDateSelection}
+                    />
+                  </AlphaCard>
+                </Popover>
+            </VerticalStack>
+          </AlphaCard>
+        </HorizontalGrid>
+        <HorizontalGrid columns={{ xs: "1fr", md: "2fr 5fr" }} gap="4">
+          <Box
+            as="section"
+            paddingInlineStart={{ xs: 4, sm: 0 }}
+            paddingInlineEnd={{ xs: 4, sm: 0 }}
+          >
+            <VerticalStack gap="4">
+              <Text as="h3" variant="headingMd">
+                Notifications
+              </Text>
+              <Text as="p" variant="bodyMd">
+                Email notifications sent to suppliers when a PO is placed.
+              </Text>
+            </VerticalStack>
+          </Box>
+          <AlphaCard roundedAbove="sm">
+            <VerticalStack gap="4">
+              <Checkbox label="Notify suppliers when PO is created" />
+              <Checkbox label="CC store owner for all notifications" />
             </VerticalStack>
           </AlphaCard>
         </HorizontalGrid>

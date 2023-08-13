@@ -21,11 +21,15 @@ export default function App() {
             <NavigationMenu
               navigationLinks={[
                 {
+                  label: "Inventory Levels",
+                  destination: "/inventory",
+                },
+                {
                   label: "Purchase Orders",
                   destination: "/orders",
                 },
                 {
-                  label: "Inventory Personnel",
+                  label: "Suppliers",
                   destination: "/manageusers",
                 },
                 {

@@ -24,7 +24,7 @@ export default function CreateOrder() {
       <Page
         breadcrumbs={[{ content: "Orders", url: "/orders" }]}
         title="New Purchase Order"
-        primaryAction={{ content: "Create Order", onAction: () => {  } }} 
+        primaryAction={{ content: "Create Purchase Order", onAction: () => {  } }} 
         secondaryActions={[
           {
             content: "Cancel",

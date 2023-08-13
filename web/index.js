@@ -145,6 +145,25 @@ app.get("/api/products/count", async (_req, res) => {
   res.status(200).send(countData);
 });
 
+app.get("/api/products/levels", async (_req, res) => {
+  const countData = await shopify.api.rest.InventoryLevel.all({
+    session: res.locals.shopify.session,
+  });
+
+// Fetch all SKUs
+
+// Fetch all orders from start date - [SoldUnits]
+
+// Fetch from MySQL PO and Inventory tables - [OnHand, DeliveredPO]
+
+// 
+
+// Get all orders
+
+
+  res.status(200).send(countData);
+});
+
 app.get("/api/products/create", async (_req, res) => {
   let status = 200;
   let error = null;

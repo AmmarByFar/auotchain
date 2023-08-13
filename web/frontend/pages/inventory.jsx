@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Page, IndexTable, Text, LegacyCard, useIndexResourceState, AlphaCard } from '@shopify/polaris';
 import { useAppQuery, useAuthenticatedFetch } from "../hooks";
-import { ChecklistMajor, ArchiveMinor, DeleteMinor } from '@shopify/polaris-icons';
+import { ChecklistMajor, ArchiveMinor, DeleteMinor, EditMinor } from '@shopify/polaris-icons';
 
 const OrdersList = () => {
   const [orders, setOrders] = useState([]);
@@ -30,7 +30,7 @@ const OrdersList = () => {
   const secondaryActionsEnabled = selectedResources.length > 0;
 
   return (
-    <Page title="Purchase Orders"
+    <Page title="Inventory Levels"
       primaryAction={{ content: "New Purchase Order", onAction: () => { navigate("/createorder") } }} 
       secondaryActions={[
         {
@@ -41,18 +41,10 @@ const OrdersList = () => {
           disabled: !secondaryActionsEnabled
         },
         {
-          content: "Archive",
-          icon: ArchiveMinor,
+          content: "Edit",
+          icon: EditMinor,
           accessibilityLabel: "Secondary action label",
-          onAction: () => alert("Archive action"),
-          disabled: !secondaryActionsEnabled
-        },
-        {
-          content: "Delete",
-          icon: DeleteMinor,
-          destructive: true,
-          accessibilityLabel: "Secondary action label",
-          onAction: () => alert("Delete action"),
+          onAction: () => alert("Edit action"),
           disabled: !secondaryActionsEnabled
         },
       ]}>
@@ -68,14 +60,11 @@ const OrdersList = () => {
               headings={[
                 {title: 'Product ID'},
                 {title: 'SKU'},
-                {title: 'Order Amount'},
-                {title: 'Supplier'},
-                {title: 'Warehouse Manager'},
-                {title: 'Order Status'},
-                {title: 'Order Date'},
-                {title: 'Delivery Date'},
-                {title: 'Delivery Tracking'},
-                {title: 'Delivery Notes'},
+                {title: 'On Hand'},
+                {title: 'Units Sold'},
+                {title: 'Incoming Inventory'},
+                {title: 'Net Inventory'},
+                {title: 'Pending Orders'},
               ]}
             >
               {orders.map((order, index) => (
@@ -91,10 +80,6 @@ const OrdersList = () => {
                   <IndexTable.Cell>{order.Supplier.username}</IndexTable.Cell>
                   <IndexTable.Cell>{order.WarehouseManager.username}</IndexTable.Cell>
                   <IndexTable.Cell>{order.orderStatus}</IndexTable.Cell>
-                  <IndexTable.Cell>{order.orderDate}</IndexTable.Cell>
-                  <IndexTable.Cell>{order.deliveryDate}</IndexTable.Cell>
-                  <IndexTable.Cell>{order.deliveryTracking}</IndexTable.Cell>
-                  <IndexTable.Cell>{order.deliveryNotes}</IndexTable.Cell>
                 </IndexTable.Row>
               ))}
             </IndexTable>
