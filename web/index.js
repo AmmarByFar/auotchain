@@ -150,15 +150,21 @@ app.get("/api/products/levels", async (_req, res) => {
     session: res.locals.shopify.session,
   });
 
-// Fetch all SKUs
+// Fetch all SKUs and check if there's records for them in the inventory table, create them if no records
 
-// Fetch all orders from start date - [SoldUnits]
+// Inventory Table [SKU, OnHand, TotalSold]
+
+// Purchase Order 
+
+// Fetch last sync time, if null start at start date specified in settings
+
+// Fetch all orders from last sync date - [SoldUnits]
 
 // Fetch from MySQL PO and Inventory tables - [OnHand, DeliveredPO]
 
-// 
-
 // Get all orders
+
+// Write to MySQL settings table DateTime of last sync (now) 
 
 
   res.status(200).send(countData);
