@@ -15,6 +15,10 @@ export default function AppSettings() {
   const [initialReorderLevel, setInitialReorderLevel] = useState("");
   const [initialReorderAmount, setInitialReorderAmount] = useState("");
 
+  const [startDate, setStartDate] = useState("");
+  const [initialStartDate, setInitialStartDate] = useState("");
+
+
   const fetch = useAuthenticatedFetch();
 
   useEffect(() => {
@@ -26,11 +30,17 @@ export default function AppSettings() {
         setInitialReorderAmount(data.settings.reorderAmount.toString());
         setReorderLevel(data.settings.reorderLevel.toString());
         setReorderAmount(data.settings.reorderAmount.toString());
+        setInitialStartDate(data.settings.startDate || "");
+        setStartDate(data.settings.startDate || "");
       }
     }
     getInitialSettings();
   }, []);
   
+  const handleStartDateChange = (newDate) => {
+    setStartDate(newDate.toISOString().slice(0, 10));
+    checkFormModification();
+  };
 
   const handleReorderLevelChange = (value) => {
     setReorderLevel(value);
@@ -43,7 +53,11 @@ export default function AppSettings() {
   };
 
   const checkFormModification = () => {
-    if (reorderLevel !== initialReorderLevel || reorderAmount !== initialReorderAmount) {
+    if (
+      reorderLevel !== initialReorderLevel ||
+      reorderAmount !== initialReorderAmount ||
+      startDate !== initialStartDate
+    ) {
       setIsFormModified(true);
     } else {
       setIsFormModified(false);
@@ -57,7 +71,7 @@ export default function AppSettings() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ reorderLevel, reorderAmount }),
+      bbody: JSON.stringify({ reorderLevel, reorderAmount, startDate }),
     });
 
     if(response.ok) {
@@ -112,6 +126,7 @@ export default function AppSettings() {
   }
   function handleDateSelection({ end: newSelectedDate }) {
     setSelectedDate(newSelectedDate);
+    handleStartDateChange(newSelectedDate);
     setVisible(false);
   }
   useEffect(() => {

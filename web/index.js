@@ -21,6 +21,8 @@ import ordersWebhook from "./ordersWebhook.js";
 import * as userController from './controllers/userController.js';
 import { handleOrderCreate } from './controllers/webhookController.js';
 import { getSettings, postSettings } from './controllers/settingsController.js';
+import { getProducts, updateProduct } from './controllers/productsController.js'
+import { get } from 'https';
 
 // TODO: REMOVE alter:true FROM BELOW BEFORE PUSHING TO PRODUCTION
 db.sync(/*{ alter: true }*/)
@@ -145,30 +147,8 @@ app.get("/api/products/count", async (_req, res) => {
   res.status(200).send(countData);
 });
 
-app.get("/api/products/levels", async (_req, res) => {
-  const countData = await shopify.api.rest.InventoryLevel.all({
-    session: res.locals.shopify.session,
-  });
-
-// Fetch all SKUs and check if there's records for them in the inventory table, create them if no records
-
-// Inventory Table [SKU, OnHand, TotalSold]
-
-// Purchase Order 
-
-// Fetch last sync time, if null start at start date specified in settings
-
-// Fetch all orders from last sync date - [SoldUnits]
-
-// Fetch from MySQL PO and Inventory tables - [OnHand, DeliveredPO]
-
-// Get all orders
-
-// Write to MySQL settings table DateTime of last sync (now) 
-
-
-  res.status(200).send(countData);
-});
+app.get("/api/products", getProducts);
+app.post("/api/products", updateProduct);
 
 app.get("/api/products/create", async (_req, res) => {
   let status = 200;

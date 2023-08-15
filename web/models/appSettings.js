@@ -19,6 +19,10 @@ const AppSettings = db.define('AppSettings', {
   reorderAmount: {
     type: Sequelize.INTEGER,
     allowNull: true
+  },
+  startDate: {
+    type: Sequelize.DATE,
+    allowNull: true
   }
 });
 

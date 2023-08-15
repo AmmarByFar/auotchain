@@ -86,7 +86,7 @@ const OrdersList = () => {
                   position={index}
                 >
                   <IndexTable.Cell><Text variant="bodyMd" fontWeight="bold" as="span">{order.productID}</Text></IndexTable.Cell>
-                  <IndexTable.Cell>{order.SKU}</IndexTable.Cell>
+                  <IndexTable.Cell>{order.sku}</IndexTable.Cell>
                   <IndexTable.Cell>{order.orderAmount}</IndexTable.Cell>
                   <IndexTable.Cell>{order.Supplier.username}</IndexTable.Cell>
                   <IndexTable.Cell>{order.WarehouseManager.username}</IndexTable.Cell>
