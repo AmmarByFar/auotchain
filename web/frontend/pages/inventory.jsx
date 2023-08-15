@@ -5,26 +5,26 @@ import { Page, IndexTable, Text, LegacyCard, useIndexResourceState, AlphaCard } 
 import { useAppQuery, useAuthenticatedFetch } from "../hooks";
 import { ChecklistMajor, ArchiveMinor, DeleteMinor, EditMinor } from '@shopify/polaris-icons';
 
-const OrdersList = () => {
-  const [orders, setOrders] = useState([]);
+const ProductsList = () => {
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const fetch = useAuthenticatedFetch();
 
-    // Fetch orders from the API
+    // Fetch products from the API
     useEffect(() => {
-        fetch('/api/orders')
+        fetch('/api/products')
         .then(response => response.json())
         .then(data => {
-            setOrders(data);
+            setProducts(data);
             setLoading(false);
         })
-        .catch(error => console.error('Error fetching orders:', error));
+        .catch(error => console.error('Error fetching products:', error));
     }, []);
   
 
   const {selectedResources, allResourcesSelected, handleSelectionChange} =
-    useIndexResourceState(orders);
+    useIndexResourceState(products);
 
   const navigate = useNavigate();
   const secondaryActionsEnabled = selectedResources.length > 0;
@@ -52,34 +52,35 @@ const OrdersList = () => {
         ? <div>Loading...</div>
         : <AlphaCard padding={0}>
             <IndexTable
-              itemCount={orders.length}
+              itemCount={products.length}
               selectedItemsCount={
                 allResourcesSelected ? 'All' : selectedResources.length
               }
               onSelectionChange={handleSelectionChange}
               headings={[
                 {title: 'Product ID'},
+                {title: 'Title'},
                 {title: 'SKU'},
                 {title: 'On Hand'},
-                {title: 'Units Sold'},
                 {title: 'Incoming Inventory'},
                 {title: 'Net Inventory'},
                 {title: 'Pending Orders'},
-              ]}
+            ]}
             >
-              {orders.map((order, index) => (
+              {products.map((product, index) => (
                 <IndexTable.Row
-                  id={order.id}
-                  key={order.id}
-                  selected={selectedResources.includes(order.id)}
+                  id={product.id}
+                  key={product.id}
+                  selected={selectedResources.includes(product.id)}
                   position={index}
                 >
-                  <IndexTable.Cell><Text variant="bodyMd" fontWeight="bold" as="span">{order.productID}</Text></IndexTable.Cell>
-                  <IndexTable.Cell>{order.SKU}</IndexTable.Cell>
-                  <IndexTable.Cell>{order.orderAmount}</IndexTable.Cell>
-                  <IndexTable.Cell>{order.Supplier.username}</IndexTable.Cell>
-                  <IndexTable.Cell>{order.WarehouseManager.username}</IndexTable.Cell>
-                  <IndexTable.Cell>{order.orderStatus}</IndexTable.Cell>
+                  <IndexTable.Cell><Text variant="bodyMd" fontWeight="bold" as="span">{product.productID}</Text></IndexTable.Cell>
+                  <IndexTable.Cell>{product.title}</IndexTable.Cell>
+                  <IndexTable.Cell>{product.sku}</IndexTable.Cell>
+                  <IndexTable.Cell>{product.onHand}</IndexTable.Cell>
+                  <IndexTable.Cell>{product.incomingInventory}</IndexTable.Cell>
+                  <IndexTable.Cell>{product.netInventory}</IndexTable.Cell>
+                  <IndexTable.Cell>{product.pendingOrders}</IndexTable.Cell>
                 </IndexTable.Row>
               ))}
             </IndexTable>
@@ -89,4 +90,4 @@ const OrdersList = () => {
   );  
 };
 
-export default OrdersList;
+export default ProductsList;

@@ -19,7 +19,7 @@ const Product = db.define('Product', {
         model: User, // Now 'User' model is referred instead of 'suppliers'
         key: 'id',
       },
-      allowNull: false
+      allowNull: true
     },
     warehouseId: {
       type: Sequelize.INTEGER,
@@ -28,6 +28,18 @@ const Product = db.define('Product', {
         key: 'id',
       },
       allowNull: true // Assuming a warehouse manager is optional for a product
+    },
+    sku: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
+    onHand: {
+      type: Sequelize.INTEGER,
+      allowNull: true
+    },
+    shopDomain: {
+      type: Sequelize.STRING,
+      allowNull: false
     }
 }, {
     tableName: 'products',
