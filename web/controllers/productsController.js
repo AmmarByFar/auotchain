@@ -35,12 +35,15 @@ export const getProducts = async (req, res) => {
     });
 
     // 4. Fetch Pending Orders from Shopify
-    const pendingOrders = await shopify.rest.Order.all({
+    const pendingOrders = await shopify.api.rest.Order.all({
         session: res.locals.shopify.session,
         status: "open",
     });
+
+    //console.log(pendingOrders);
+
     const pendingOrderQuantities = {}; // Use a hash map to store and sum up quantities by SKU
-    pendingOrders.forEach(order => {
+    pendingOrders.data.forEach(order => {
         order.line_items.forEach(item => {
             if (pendingOrderQuantities[item.sku]) {
                 pendingOrderQuantities[item.sku] += item.quantity;
@@ -50,7 +53,7 @@ export const getProducts = async (req, res) => {
         });
     });
 
-    const combinedProducts = shopifyProducts.map(product => {
+    const combinedProducts = shopifyProducts.data.map(product => {
         return product.variants.map(variant => {
             const localProduct = localProducts.find(lp => lp.sku === variant.sku || lp.productId === product.id);
             const onHand = localProduct ? localProduct.OnHand : 0;

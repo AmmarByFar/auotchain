@@ -10,18 +10,52 @@ const ProductsList = () => {
   const [loading, setLoading] = useState(true);
 
   const fetch = useAuthenticatedFetch();
-
-    // Fetch products from the API
-    useEffect(() => {
-        fetch('/api/products')
-        .then(response => response.json())
-        .then(data => {
-            setProducts(data);
-            setLoading(false);
-        })
-        .catch(error => console.error('Error fetching products:', error));
-    }, []);
   
+  // Fetch products from the API
+  useEffect(() => {
+    fetch('/api/products')
+    .then(response => response.json())
+    .then(data => {
+      setProducts(data);
+      setLoading(false);
+    })
+    .catch(error => console.error('Error fetching products:', error));
+  }, []);
+
+  // Handler to update OnHand value locally
+  const handleOnHandChange = (sku, value) => {
+    setProducts(prevProducts => 
+      prevProducts.map(product => 
+        product.sku === sku 
+        ? { ...product, onHand: value } 
+        : product
+      )
+    );
+  };
+
+  // Handler to save the edited OnHand value to the backend
+  const saveOnHand = (sku) => {
+    const product = products.find(p => p.sku === sku);
+    
+    // Send POST request to save the new value
+    fetch('/api/products/updateOnHand', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ sku, onHand: product.onHand })
+    }).then(response => {
+      if (!response.ok) {
+        throw new Error('Failed to save OnHand value');
+      }
+      return response.json();
+    }).then(data => {
+      // Handle successful save, perhaps show a success notification
+    }).catch(error => {
+      console.error('Error saving OnHand value:', error);
+    });
+  };
+
 
   const {selectedResources, allResourcesSelected, handleSelectionChange} =
     useIndexResourceState(products);
@@ -58,13 +92,13 @@ const ProductsList = () => {
               }
               onSelectionChange={handleSelectionChange}
               headings={[
-                {title: 'Product ID'},
-                {title: 'Title'},
                 {title: 'SKU'},
                 {title: 'On Hand'},
                 {title: 'Incoming Inventory'},
                 {title: 'Net Inventory'},
                 {title: 'Pending Orders'},
+                {title: 'Product ID'},
+                {title: 'Title'},
             ]}
             >
               {products.map((product, index) => (
@@ -74,10 +108,15 @@ const ProductsList = () => {
                   selected={selectedResources.includes(product.id)}
                   position={index}
                 >
-                  <IndexTable.Cell><Text variant="bodyMd" fontWeight="bold" as="span">{product.productID}</Text></IndexTable.Cell>
-                  <IndexTable.Cell>{product.title}</IndexTable.Cell>
-                  <IndexTable.Cell>{product.sku}</IndexTable.Cell>
-                  <IndexTable.Cell>{product.onHand}</IndexTable.Cell>
+                  <IndexTable.Cell><Text variant="bodyMd" fontWeight="bold" as="span">{product.sku}</Text></IndexTable.Cell>
+                  <IndexTable.Cell>
+                    <input 
+                      type="number" 
+                      value={product.onHand} 
+                      onChange={(e) => handleOnHandChange(product.sku, e.target.value)}
+                      onBlur={() => saveOnHand(product.sku)}
+                    />
+                  </IndexTable.Cell>
                   <IndexTable.Cell>{product.incomingInventory}</IndexTable.Cell>
                   <IndexTable.Cell>{product.netInventory}</IndexTable.Cell>
                   <IndexTable.Cell>{product.pendingOrders}</IndexTable.Cell>

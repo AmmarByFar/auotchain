@@ -148,6 +148,7 @@ app.get("/api/products/count", async (_req, res) => {
 });
 
 app.get("/api/products", getProducts);
+
 app.post("/api/products", updateProduct);
 
 app.get("/api/products/create", async (_req, res) => {

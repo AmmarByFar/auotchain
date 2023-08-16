@@ -17,7 +17,7 @@ const Order = db.define('Order', {
     type: Sequelize.INTEGER,
     allowNull: false
   },
-  sku: {
+  SKU: {
     type: Sequelize.STRING,
     allowNull: false
   },
