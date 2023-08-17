@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Page, IndexTable, Text, LegacyCard, useIndexResourceState, AlphaCard } from '@shopify/polaris';
+import { Page, IndexTable, Text, LegacyCard, useIndexResourceState, AlphaCard, EmptySearchResult, IndexFilters } from '@shopify/polaris';
 import { useAppQuery, useAuthenticatedFetch } from "../hooks";
 import { ChecklistMajor, ArchiveMinor, DeleteMinor, EditMinor } from '@shopify/polaris-icons';
 
@@ -63,6 +63,14 @@ const ProductsList = () => {
   const navigate = useNavigate();
   const secondaryActionsEnabled = selectedResources.length > 0;
 
+  const emptyStateMarkup = (
+    <EmptySearchResult
+      title={'No customers yet'}
+      description={'Try changing the filters or search term'}
+      withIllustration
+    />
+  );
+
   return (
     <Page title="Inventory Levels"
       primaryAction={{ content: "New Purchase Order", onAction: () => { navigate("/createorder") } }} 
@@ -99,7 +107,8 @@ const ProductsList = () => {
                 {title: 'Pending Orders'},
                 {title: 'Product ID'},
                 {title: 'Title'},
-            ]}
+              ]}
+              emptyStateMarkup={emptyStateMarkup}
             >
               {products.map((product, index) => (
                 <IndexTable.Row

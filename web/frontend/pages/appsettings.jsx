@@ -71,7 +71,7 @@ export default function AppSettings() {
       headers: {
         'Content-Type': 'application/json',
       },
-      bbody: JSON.stringify({ reorderLevel, reorderAmount, startDate }),
+      body: JSON.stringify({ reorderLevel, reorderAmount, startDate }),
     });
 
     if(response.ok) {

@@ -1,6 +1,6 @@
 import Sequelize from 'sequelize';
 import db from '../config/database.js';
-import User from './user.js'; // make sure this path is correct
+import User from './user.js'; 
 
 const Product = db.define('Product', {
     id: {
@@ -16,7 +16,7 @@ const Product = db.define('Product', {
     supplierId: {
       type: Sequelize.INTEGER,
       references: {
-        model: User, // Now 'User' model is referred instead of 'suppliers'
+        model: User, 
         key: 'id',
       },
       allowNull: true
@@ -24,10 +24,10 @@ const Product = db.define('Product', {
     warehouseId: {
       type: Sequelize.INTEGER,
       references: {
-        model: User, // 'User' model is referred
+        model: User, 
         key: 'id',
       },
-      allowNull: true // Assuming a warehouse manager is optional for a product
+      allowNull: true 
     },
     sku: {
       type: Sequelize.STRING,

@@ -1,6 +1,6 @@
 import Sequelize from 'sequelize';
 import db from '../config/database.js';
-import User from './user.js'; // make sure this path is correct
+import User from './user.js'; 
 
 const Order = db.define('Order', {
   id: {
