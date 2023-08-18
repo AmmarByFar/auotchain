@@ -198,7 +198,7 @@ export default function AppSettings() {
                 Tracking
               </Text>
               <Text as="p" variant="bodyMd">
-                Track sales begining at specified date. Sales prior to this date will not be tracked. Ensure inventory levels are accurate before enabling tracking.
+                Track sales begining at specified date. Sales prior to this date will not be tracked. Ensure inventory levels are accurate before enabling.
               </Text>
             </VerticalStack>
           </Box>
