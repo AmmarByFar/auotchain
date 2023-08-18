@@ -21,7 +21,7 @@ import { getProducts, updateProducts } from './controllers/productsController.js
 import { getOrders, updateOrder, createOrder } from './controllers/ordersController.js';
 
 // TODO: REMOVE alter:true FROM BELOW BEFORE PUSHING TO PRODUCTION
-db.sync({ alter: true })
+db.sync(/*{ alter: true }*/)
   .then(() => console.log("All models were synchronized successfully."))
   .catch((error) => console.log("An error occurred:", error));
 
