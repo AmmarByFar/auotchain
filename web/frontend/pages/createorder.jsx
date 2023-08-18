@@ -154,7 +154,7 @@ function handleOrderMonthChange(month, year) {
             </AlphaCard>
           </Popover>
           <TextField
-          label="Delivery Notes"
+          label="Order Notes"
           value={orderData.deliveryNotes}
           onChange={(value) => setOrderData(prevState => ({ ...prevState, deliveryNotes: value }))}
           />
