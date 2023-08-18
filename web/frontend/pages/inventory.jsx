@@ -100,13 +100,12 @@ const ProductsList = () => {
               }
               onSelectionChange={handleSelectionChange}
               headings={[
+                {title: 'Image'},
                 {title: 'SKU'},
                 {title: 'On Hand'},
                 {title: 'Incoming Inventory'},
                 {title: 'Net Inventory'},
-                {title: 'Pending Orders'},
-                {title: 'Product ID'},
-                {title: 'Title'},
+                {title: 'Pending Orders'}
               ]}
               emptyStateMarkup={emptyStateMarkup}
             >
@@ -117,6 +116,7 @@ const ProductsList = () => {
                   selected={selectedResources.includes(product.id)}
                   position={index}
                 >
+                  <IndexTable.Cell><img src={product.imageUrl} alt={product.sku} style={{width: '40px', height: '40px'}}/></IndexTable.Cell>
                   <IndexTable.Cell><Text variant="bodyMd" fontWeight="bold" as="span">{product.sku}</Text></IndexTable.Cell>
                   <IndexTable.Cell>
                     <input 

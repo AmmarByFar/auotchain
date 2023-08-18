@@ -41,15 +41,7 @@ const Order = db.define('Order', {
     type: Sequelize.DATE,
     allowNull: true
   },
-  deliveryDate: {
-    type: Sequelize.DATE,
-    allowNull: true
-  },
-  deliveryTracking: {
-    type: Sequelize.STRING,
-    allowNull: true
-  },
-  deliveryNotes: {
+  orderNotes: {
     type: Sequelize.STRING,
     allowNull: true
   }

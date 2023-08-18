@@ -25,11 +25,11 @@ const ShopifySession = db.define('shopify_sessions', {
   },
   expires: {
     type: Sequelize.INTEGER,
-    allowNull: false
+    allowNull: true
   },
   onlineAccessInfo: {
     type: Sequelize.STRING(255),
-    allowNull: false
+    allowNull: true
   },
   accessToken: {
     type: Sequelize.STRING(255),

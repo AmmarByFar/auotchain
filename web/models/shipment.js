@@ -17,6 +17,10 @@ const Shipment = db.define('Shipment', {
       key: 'id'
     }
   },
+  shipmentAmount: {
+    type: Sequelize.INTEGER,
+    allowNull: true
+  },
   shipmentTracking: {
     type: Sequelize.STRING,
     allowNull: true
@@ -26,6 +30,10 @@ const Shipment = db.define('Shipment', {
     allowNull: true
   },
   expectedArrivalDate: {
+    type: Sequelize.DATE,
+    allowNull: true
+  },
+  deliveredDate: {
     type: Sequelize.DATE,
     allowNull: true
   },

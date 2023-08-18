@@ -66,16 +66,14 @@ const OrdersList = () => {
               }
               onSelectionChange={handleSelectionChange}
               headings={[
-                {title: 'Product ID'},
+                {title: 'Order ID'},
                 {title: 'SKU'},
                 {title: 'Order Amount'},
-                {title: 'Supplier'},
-                {title: 'Warehouse Manager'},
                 {title: 'Order Status'},
                 {title: 'Order Date'},
-                {title: 'Delivery Date'},
-                {title: 'Delivery Tracking'},
-                {title: 'Delivery Notes'},
+                {title: 'Supplier'},
+                {title: 'Warehouse Manager'},
+                {title: 'Order Notes'},
               ]}
             >
               {orders.map((order, index) => (
@@ -85,16 +83,14 @@ const OrdersList = () => {
                   selected={selectedResources.includes(order.id)}
                   position={index}
                 >
-                  <IndexTable.Cell><Text variant="bodyMd" fontWeight="bold" as="span">{order.productID}</Text></IndexTable.Cell>
+                  <IndexTable.Cell><Text variant="bodyMd" fontWeight="bold" as="span">{order.id}</Text></IndexTable.Cell>
                   <IndexTable.Cell>{order.sku}</IndexTable.Cell>
                   <IndexTable.Cell>{order.orderAmount}</IndexTable.Cell>
-                  <IndexTable.Cell>{order.Supplier.username}</IndexTable.Cell>
-                  <IndexTable.Cell>{order.WarehouseManager.username}</IndexTable.Cell>
                   <IndexTable.Cell>{order.orderStatus}</IndexTable.Cell>
                   <IndexTable.Cell>{order.orderDate}</IndexTable.Cell>
-                  <IndexTable.Cell>{order.deliveryDate}</IndexTable.Cell>
-                  <IndexTable.Cell>{order.deliveryTracking}</IndexTable.Cell>
-                  <IndexTable.Cell>{order.deliveryNotes}</IndexTable.Cell>
+                  <IndexTable.Cell>{order.Supplier.username}</IndexTable.Cell>
+                  <IndexTable.Cell>{order.WarehouseManager.username}</IndexTable.Cell>
+                  <IndexTable.Cell>{order.orderNotes}</IndexTable.Cell>
                 </IndexTable.Row>
               ))}
             </IndexTable>

@@ -1,9 +1,7 @@
-// Import necessary modules
-import verifyWebhook from '../utils/verifyWebhook.js'; // Assuming you have a utility function for webhook verification
-import shopify from '../shopify.js'; // Assuming this is your Shopify connection object
-import AppSettings from '../models/appSettings.js'; // Assuming this is your AppSettings model
+import verifyWebhook from '../utils/verifyWebhook.js';
+import shopify from '../shopify.js';
+import AppSettings from '../models/appSettings.js';
 
-// Handle order creation webhook
 export const handleOrderCreate = async (req, res) => {
   console.log('received webhook: orders/create');
   res.status(200).end();

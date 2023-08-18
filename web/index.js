@@ -7,25 +7,21 @@ import { setUncaughtExceptionCaptureCallback } from "process";
 import express from "express";
 import serveStatic from "serve-static";
 import bodyParser from "body-parser";
-
 import db from './config/database.js';
-import User from './models/user.js';
-import Order from "./models/order.js";
-import AppSettings from "./models/appSettings.js"
 
 import shopify from "./shopify.js";
 import productCreator from "./product-creator.js";
 import GDPRWebhookHandlers from "./gdpr.js";
 import ordersWebhook from "./ordersWebhook.js";
 
-import * as userController from './controllers/userController.js';
+import { getUsers, createUser }  from './controllers/userController.js';
 import { handleOrderCreate } from './controllers/webhookController.js';
 import { getSettings, postSettings } from './controllers/settingsController.js';
-import { getProducts, updateProduct } from './controllers/productsController.js'
-import { get } from 'https';
+import { getProducts, updateProducts } from './controllers/productsController.js'
+import { getOrders, updateOrder, createOrder } from './controllers/ordersController.js';
 
 // TODO: REMOVE alter:true FROM BELOW BEFORE PUSHING TO PRODUCTION
-db.sync(/*{ alter: true }*/)
+db.sync({ alter: true })
   .then(() => console.log("All models were synchronized successfully."))
   .catch((error) => console.log("An error occurred:", error));
 
@@ -89,56 +85,19 @@ const rawBodyParser = bodyParser.raw({type: 'application/json'});
 
 //app.post('/webhooks/orders/create', rawBodyParser, handleOrderCreate);
 
-// If you are adding routes outside of the /api path, remember to
-// also add a proxy rule for them in web/frontend/vite.config.js
-
 app.use("/api/*", shopify.validateAuthenticatedSession());
 
 app.use(express.json());
 
-app.post('/api/users', userController.createUser);
+app.post('/api/users', createUser);
 
-app.get('/api/users', userController.getUsers);
+app.get('/api/users', getUsers);
 
 app.get('/api/appsettings', getSettings);
 
 app.post('/api/appsettings', postSettings);
 
-app.get('/api/orders', async (_req, res) => {
-  try {
-    const shopDomain = res.locals.shopify.session.shop
-    console.log(shopDomain);
-    const orders = await Order.findAll({
-      attributes: [
-        'productID',
-        'SKU',
-        'orderAmount',
-        'orderStatus',
-        'orderDate',
-        'deliveryDate',
-        'deliveryTracking',
-        'deliveryNotes'
-      ],
-      include: [
-        { 
-          model: User,
-          as: 'Supplier', 
-          attributes: ['username']
-        },
-        {
-          model: User,
-          as: 'WarehouseManager',
-          attributes: ['username']
-        }
-      ],
-      where: { shopDomain }
-    });
-    res.json(orders);
-  } catch (error) {
-    console.error('Failed to fetch orders:', error);
-    res.status(500).json({ message: 'Failed to fetch orders' });
-  }
-});
+app.get('/api/orders', getOrders);
 
 app.get("/api/products/count", async (_req, res) => {
   const countData = await shopify.api.rest.Product.count({
@@ -149,7 +108,7 @@ app.get("/api/products/count", async (_req, res) => {
 
 app.get("/api/products", getProducts);
 
-app.post("/api/products", updateProduct);
+app.post("/api/products", updateProducts);
 
 app.get("/api/products/create", async (_req, res) => {
   let status = 200;

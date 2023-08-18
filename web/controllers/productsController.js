@@ -40,8 +40,6 @@ export const getProducts = async (req, res) => {
         status: "open",
     });
 
-    //console.log(pendingOrders);
-
     const pendingOrderQuantities = {}; // Use a hash map to store and sum up quantities by SKU
     pendingOrders.data.forEach(order => {
         order.line_items.forEach(item => {
@@ -57,19 +55,23 @@ export const getProducts = async (req, res) => {
         return product.variants.map(variant => {
             const localProduct = localProducts.find(lp => lp.sku === variant.sku || lp.productId === product.id);
             const onHand = localProduct ? localProduct.OnHand : 0;
-
+    
             const incomingInventory = incomingInventoryList.find(ii => ii.sku === variant.sku);
             const incoming = incomingInventory ? incomingInventory.totalIncoming : 0;
-
+    
             const pending = pendingOrderQuantities[variant.sku] || 0;
 
+            const variantImage = product.images.find(img => img.id === variant.image_id);
+    
             return {
-                title: product.title,
+                id: variant.id,
+                // title: product.title,
                 sku: variant.sku,
                 onHand: onHand,
                 incomingInventory: incoming,
                 pendingOrders: pending,
-                netInventory: onHand + incoming - pending
+                netInventory: onHand + incoming - pending,
+                imageUrl: variantImage ? variantImage.src : null
             };
         });
     }).flat();
@@ -77,6 +79,33 @@ export const getProducts = async (req, res) => {
     res.status(200).send(combinedProducts);
 }
 
-export const updateProduct = async (req, res) => {
-
-}
+export const updateProducts = async (req, res) => {
+    try {
+      const shopDomain = res.locals.shopify.session.shop;
+  
+      await Promise.all(req.body.map(async product => {
+        const { sku, onHand } = product;
+  
+        const [dbProduct, created] = await Product.findOrCreate({
+          where: { sku, shopDomain },
+          defaults: {
+            sku,
+            onHand,
+            shopDomain,
+          }
+        });
+  
+        if (!created) {
+          dbProduct.onHand = onHand;
+          await dbProduct.save();
+        }
+      }));
+  
+      res.status(200).json({ message: 'Products updated successfully' });
+  
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Server error' });
+    }
+  };
+  
