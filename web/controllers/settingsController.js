@@ -1,4 +1,3 @@
-// controllers/settingsController.js
 import AppSettings from "../models/appSettings.js";
 
 export const getSettings = async (req, res) => {
@@ -25,13 +24,11 @@ export const postSettings = async (req, res) => {
     let settings = await AppSettings.findOne({ where: { shopDomain } });
 
     if(settings) {
-      // If settings already exist, update them
       settings.reorderLevel = reorderLevel;
       settings.reorderAmount = reorderAmount;
       settings.startDate = startDate;
       await settings.save();
     } else {
-      // If no settings exist yet, create new ones
       settings = await AppSettings.create({ shopDomain, reorderLevel, reorderAmount, startDate });
     }
 
