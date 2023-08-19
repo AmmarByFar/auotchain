@@ -23,6 +23,11 @@ const AppSettings = db.define('AppSettings', {
   startDate: {
     type: Sequelize.DATE,
     allowNull: true
+  },
+  trackingEnabled: {
+    type: Sequelize.BOOLEAN,
+    allowNull: false,
+    defaultValue: false
   }
 });
 

@@ -1,4 +1,4 @@
-import { Page, Layout, TextContainer, Text, Card, Icon, Popover, TextField, VerticalStack, HorizontalGrid, Box, AlphaCard, Toast, Frame, Checkbox, DatePicker } from "@shopify/polaris";
+import { Page, Layout, Text, Icon, Popover, TextField, VerticalStack, HorizontalGrid, Box, AlphaCard, Toast, Frame, Checkbox, DatePicker } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 import { useAppQuery, useAuthenticatedFetch } from "../hooks";
 import { useState, useEffect, useRef } from 'react';
@@ -18,6 +18,9 @@ export default function AppSettings() {
   const [startDate, setStartDate] = useState("");
   const [initialStartDate, setInitialStartDate] = useState("");
 
+  const [trackingEnabled, setTrackingEnabled] = useState(false);
+  const [initialTrackingEnabled, setInitialTrackingEnabled] = useState(false);
+
 
   const fetch = useAuthenticatedFetch();
 
@@ -32,6 +35,8 @@ export default function AppSettings() {
         setReorderAmount(data.settings.reorderAmount.toString());
         setInitialStartDate(data.settings.startDate || "");
         setStartDate(data.settings.startDate || "");
+        setInitialTrackingEnabled(data.settings.trackingEnabled || false);
+        setTrackingEnabled(data.settings.trackingEnabled || false);
       }
     }
     getInitialSettings();
@@ -39,24 +44,30 @@ export default function AppSettings() {
   
   const handleStartDateChange = (newDate) => {
     setStartDate(newDate.toISOString().slice(0, 10));
-    checkFormModification();
   };
 
   const handleReorderLevelChange = (value) => {
     setReorderLevel(value);
-    checkFormModification();
   };
 
   const handleReorderAmountChange = (value) => {
     setReorderAmount(value);
-    checkFormModification();
   };
+
+  const handleTrackingEnabledChange = (newValue) => {
+    setTrackingEnabled(newValue);
+  };
+
+  useEffect(() => {
+    checkFormModification();
+  }, [reorderLevel, reorderAmount, startDate, trackingEnabled]);
 
   const checkFormModification = () => {
     if (
       reorderLevel !== initialReorderLevel ||
       reorderAmount !== initialReorderAmount ||
-      startDate !== initialStartDate
+      startDate !== initialStartDate ||
+      trackingEnabled !== initialTrackingEnabled
     ) {
       setIsFormModified(true);
     } else {
@@ -71,7 +82,7 @@ export default function AppSettings() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ reorderLevel, reorderAmount, startDate }),
+      body: JSON.stringify({ reorderLevel, reorderAmount, startDate, trackingEnabled }),
     });
 
     if(response.ok) {
@@ -177,13 +188,6 @@ export default function AppSettings() {
                 onChange={handleReorderLevelChange}
                 autoComplete="off"
               />
-              {/* <TextField
-                label="Amount to reorder"
-                type="number"
-                value={reorderAmount}
-                onChange={handleReorderAmountChange}
-                autoComplete="off"
-              /> */}
             </VerticalStack>
           </AlphaCard>
         </HorizontalGrid>
@@ -204,7 +208,11 @@ export default function AppSettings() {
           </Box>
           <AlphaCard roundedAbove="sm">
             <VerticalStack gap="4">
-              <Checkbox label="Enable Tracking" />
+              <Checkbox 
+                label="Enable Tracking" 
+                checked={trackingEnabled}
+                onChange={handleTrackingEnabledChange}
+              />
                 <Popover
                   active={visible}
                   autofocusTarget="none"
