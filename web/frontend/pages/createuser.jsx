@@ -1,6 +1,18 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Page, HorizontalGrid, VerticalStack, SkeletonDisplayText, SkeletonBodyText, Box, AlphaCard, Bleed, Divider, TextField, Select } from '@shopify/polaris';
+import { 
+  Page, 
+  HorizontalGrid, 
+  VerticalStack, 
+  SkeletonDisplayText, 
+  SkeletonBodyText, 
+  Box, 
+  Card, 
+  Bleed, 
+  Divider, 
+  TextField, 
+  Select 
+} from '@shopify/polaris';
 import { CancelMajor } from '@shopify/polaris-icons';
 
 // This example is for guidance purposes. Copying it will come with caveats.
@@ -53,7 +65,7 @@ export default function CreateUser() {
       >
         <HorizontalGrid columns={{ xs: 1, md: "2fr 1fr" }} gap="4">
           <VerticalStack gap="4">
-            <AlphaCard roundedAbove="sm">
+            <Card roundedAbove="sm">
               <VerticalStack gap="4">
                 <SkeletonLabel />
                 <TextField
@@ -78,8 +90,8 @@ export default function CreateUser() {
                 <SkeletonLabel maxWidth="8rem" />
                 <Box border="divider" borderRadius="base" minHeight="20rem" />
               </VerticalStack>
-            </AlphaCard>
-            <AlphaCard roundedAbove="sm">
+            </Card>
+            <Card roundedAbove="sm">
               <VerticalStack gap="4">
                 <SkeletonDisplayText size="small" />
                 <HorizontalGrid columns={{ xs: 1, md: 2 }}>
@@ -87,10 +99,10 @@ export default function CreateUser() {
                   <Box border="divider" borderRadius="base" minHeight="10rem" />
                 </HorizontalGrid>
               </VerticalStack>
-            </AlphaCard>
+            </Card>
           </VerticalStack>
           <VerticalStack gap={{ xs: "4", md: "2" }}>
-            <AlphaCard roundedAbove="sm">
+            <Card roundedAbove="sm">
               <VerticalStack gap="4">
                 <SkeletonDisplayText size="small" />
                 <Box border="divider" borderRadius="base" minHeight="2rem" />
@@ -103,8 +115,8 @@ export default function CreateUser() {
                 <Divider />
                 <SkeletonBodyText />
               </VerticalStack>
-            </AlphaCard>
-            <AlphaCard roundedAbove="sm">
+            </Card>
+            <Card roundedAbove="sm">
               <VerticalStack gap="4">
                 <SkeletonLabel />
                 <Box border="divider" borderRadius="base" minHeight="2rem" />
@@ -113,7 +125,7 @@ export default function CreateUser() {
                 <SkeletonLabel />
                 <SkeletonBodyText />
               </VerticalStack>
-            </AlphaCard>
+            </Card>
           </VerticalStack>
         </HorizontalGrid>
       </Page>

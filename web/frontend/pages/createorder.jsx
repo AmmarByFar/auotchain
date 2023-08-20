@@ -15,12 +15,11 @@ import {
   TextField,
   DatePicker,
   Button,
-  Card,
   Form,
   Banner,
   Popover,
   Icon,
-  AlphaCard,
+  Card,
   Select,
   DropZone,
   Label,
@@ -185,7 +184,7 @@ export default function CreateOrder() {
                 />
               }
             >
-              <AlphaCard ref={orderDatePickerRef}>
+              <Card ref={orderDatePickerRef}>
                 <DatePicker
                   month={orderDateMonth}
                   year={orderDateYear}
@@ -193,7 +192,7 @@ export default function CreateOrder() {
                   onMonthChange={handleOrderMonthChange}
                   onChange={handleOrderDateChange}
                 />
-              </AlphaCard>
+              </Card>
             </Popover>
             <TextField
               label='Order Notes'

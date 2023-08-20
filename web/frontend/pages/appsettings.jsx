@@ -1,4 +1,18 @@
-import { Page, Layout, Text, Icon, Popover, TextField, VerticalStack, HorizontalGrid, Box, AlphaCard, Toast, Frame, Checkbox, DatePicker } from "@shopify/polaris";
+import { 
+  Page, 
+  Text, 
+  Icon, 
+  Popover, 
+  TextField, 
+  VerticalStack, 
+  HorizontalGrid, 
+  Box, 
+  Card, 
+  Toast, 
+  Frame, 
+  Checkbox, 
+  DatePicker 
+} from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 import { useAppQuery, useAuthenticatedFetch } from "../hooks";
 import { useState, useEffect, useRef } from 'react';
@@ -180,7 +194,7 @@ export default function AppSettings() {
               </Text>
             </VerticalStack>
           </Box>
-          <AlphaCard roundedAbove="sm">
+          <Card roundedAbove="sm">
             <VerticalStack gap="4">
               <TextField
                 label="Reorder level"
@@ -190,7 +204,7 @@ export default function AppSettings() {
                 autoComplete="off"
               />
             </VerticalStack>
-          </AlphaCard>
+          </Card>
         </HorizontalGrid>
         <HorizontalGrid columns={{ xs: "1fr", md: "2fr 5fr" }} gap="4">
           <Box
@@ -207,7 +221,7 @@ export default function AppSettings() {
               </Text>
             </VerticalStack>
           </Box>
-          <AlphaCard roundedAbove="sm">
+          <Card roundedAbove="sm">
             <VerticalStack gap="4">
               <Checkbox 
                 label="Enable Tracking" 
@@ -235,7 +249,7 @@ export default function AppSettings() {
                     />
                   }
                 >
-                  <AlphaCard ref={datePickerRef}>
+                  <Card ref={datePickerRef}>
                     <DatePicker
                       month={month}
                       year={year}
@@ -243,10 +257,10 @@ export default function AppSettings() {
                       onMonthChange={handleMonthChange}
                       onChange={handleDateSelection}
                     />
-                  </AlphaCard>
+                  </Card>
                 </Popover>
             </VerticalStack>
-          </AlphaCard>
+          </Card>
         </HorizontalGrid>
         <HorizontalGrid columns={{ xs: "1fr", md: "2fr 5fr" }} gap="4">
           <Box
@@ -263,12 +277,12 @@ export default function AppSettings() {
               </Text>
             </VerticalStack>
           </Box>
-          <AlphaCard roundedAbove="sm">
+          <Card roundedAbove="sm">
             <VerticalStack gap="4">
               <Checkbox label="Notify suppliers when PO is created" />
               <Checkbox label="CC store owner for all notifications" />
             </VerticalStack>
-          </AlphaCard>
+          </Card>
         </HorizontalGrid>
       </VerticalStack>
     </Page>

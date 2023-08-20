@@ -1,4 +1,4 @@
-import { Page, Card, IndexTable, Avatar, TextStyle, AlphaCard, useIndexResourceState } from "@shopify/polaris";
+import { Page, IndexTable, Avatar, Text, Card, useIndexResourceState } from "@shopify/polaris";
 import { useState, useEffect, useCallback } from "react";
 import { useAppQuery, useAuthenticatedFetch } from "../hooks";
 import { EditMajor, DeleteMinor } from '@shopify/polaris-icons';
@@ -35,7 +35,7 @@ export default function UserManagement() {
           <Avatar name={UserName} initials={UserName ? UserName.slice(0, 2).toUpperCase() : ''} initialsCount={2} />
         </IndexTable.Cell>
         <IndexTable.Cell>
-          <TextStyle variation="strong">{UserName}</TextStyle>
+          <Text variation="strong">{UserName}</Text>
         </IndexTable.Cell>
         <IndexTable.Cell>{UserRole}</IndexTable.Cell>
         <IndexTable.Cell>{Email}</IndexTable.Cell>
@@ -68,7 +68,7 @@ export default function UserManagement() {
         },
       ]}
     >
-      <AlphaCard padding={0}>
+      <Card padding={0}>
         <IndexTable
           resourceName={resourceName}
           itemCount={users.length}
@@ -83,7 +83,7 @@ export default function UserManagement() {
         >
           {rowMarkup}
         </IndexTable>
-      </AlphaCard>
+      </Card>
     </Page>
   );
 }
