@@ -35,6 +35,7 @@ export default function AppSettings() {
         setReorderAmount(data.settings.reorderAmount.toString());
         setInitialStartDate(data.settings.startDate || "");
         setStartDate(data.settings.startDate || "");
+        setSelectedDate(new Date(data.settings.startDate || new Date()));
         setInitialTrackingEnabled(data.settings.trackingEnabled || false);
         setTrackingEnabled(data.settings.trackingEnabled || false);
       }

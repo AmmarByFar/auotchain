@@ -106,10 +106,10 @@ export const getProducts = async (req, res) => {
             return orderDate > latest ? orderDate : latest;
         }, new Date(0));
 
-        await ShopData.update(
-            { lastSaleProcessed: latestUpdatedAt },
-            { where: { shopDomain } }
-        );
+        await ShopData.upsert({
+            shopDomain: shopDomain,
+            lastSaleProcessed: latestUpdatedAt
+        });
     }
 
     // Calculate Incoming Inventory
