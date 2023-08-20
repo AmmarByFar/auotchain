@@ -25,23 +25,11 @@ const Shipment = db.define('Shipment', {
     type: Sequelize.STRING,
     allowNull: true
   },
-  shipmentDate: {
-    type: Sequelize.DATE,
-    allowNull: true
-  },
-  expectedArrivalDate: {
-    type: Sequelize.DATE,
-    allowNull: true
-  },
-  deliveredDate: {
-    type: Sequelize.DATE,
-    allowNull: true
-  },
-  status: {
+  shipmentStatus: {
     type: Sequelize.STRING,
     allowNull: true
   },
-  notes: {
+  shipmentNotes: {
     type: Sequelize.STRING,
     allowNull: true
   }

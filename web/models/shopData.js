@@ -10,7 +10,8 @@ const ShopData = db.define('ShopData', {
     },
     shopDomain: {
       type: Sequelize.STRING,
-      allowNull: false
+      allowNull: false,
+      unique: true
     },
     lastSaleProcessed: {
       type: Sequelize.DATE,

@@ -18,7 +18,7 @@ export const getSettings = async (req, res) => {
 export const postSettings = async (req, res) => {
   try {
     const shopDomain = res.locals.shopify.session.shop;
-    const { reorderLevel, reorderAmount, startDate } = req.body;
+    const { reorderLevel, reorderAmount, startDate, trackingEnabled } = req.body;
 
     // Find existing settings for this shopDomain
     let settings = await AppSettings.findOne({ where: { shopDomain } });
@@ -27,9 +27,10 @@ export const postSettings = async (req, res) => {
       settings.reorderLevel = reorderLevel;
       settings.reorderAmount = reorderAmount;
       settings.startDate = startDate;
+      settings.trackingEnabled = trackingEnabled;
       await settings.save();
     } else {
-      settings = await AppSettings.create({ shopDomain, reorderLevel, reorderAmount, startDate });
+      settings = await AppSettings.create({ shopDomain, reorderLevel, reorderAmount, startDate, trackingEnabled });
     }
 
     res.json({ message: 'Settings saved successfully!', settings });

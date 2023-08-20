@@ -15,7 +15,7 @@ const Order = db.define('Order', {
   },
   productID: {
     type: Sequelize.INTEGER,
-    allowNull: false
+    allowNull: true
   },
   SKU: {
     type: Sequelize.STRING,
@@ -23,11 +23,11 @@ const Order = db.define('Order', {
   },
   orderAmount: {
     type: Sequelize.INTEGER,
-    allowNull: false
+    allowNull: true
   },
   supplierID: {
     type: Sequelize.INTEGER,
-    allowNull: false
+    allowNull: true
   },
   warehouseManagerID: {
     type: Sequelize.INTEGER,

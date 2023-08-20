@@ -179,7 +179,9 @@ const ProductsList = () => {
         onAction: () => {
           navigate('/createorder', {
             state: {
-              products: products.find((p) => selectedResources.includes(p.id)),
+              selectedProducts: products.find((p) =>
+                selectedResources.includes(p.id)
+              ),
             },
           });
         },
