@@ -173,7 +173,8 @@ function ProductsList() {
         onAction: () => {
           navigate('/createorder', {
             state: {
-              selectedProducts: products.find((p) => selectedResources.includes(p.id)),
+              selectedProducts: products.filter((p) => selectedResources.includes(p.id)),
+              previousPath: '/inventory',
             },
           });
         },
