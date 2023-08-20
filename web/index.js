@@ -66,7 +66,7 @@ app.get(
         console.log(webhook);
         });
       }
-
+      next()
     } catch (error) {
       console.log(`Failed to retrieve webhooks: ${error.message}`);
       next(error);

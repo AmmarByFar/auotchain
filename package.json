@@ -9,19 +9,21 @@
     "dev": "shopify app dev",
     "info": "shopify app info",
     "generate": "shopify app generate",
-    "deploy": "shopify app deploy"
+    "deploy": "shopify app deploy",
+    "lint": "eslint \"web/frontend/**/*.{js,jsx}\"",
+    "lint:fix": "eslint \"web/frontend/**/*.{js,jsx}\" --fix"
   },
   "dependencies": {
     "@shopify/app": "3.45.4",
-    "@shopify/cli": "3.45.4",
-    "@shopify/shopify-app-session-storage-mysql": "^1.1.6",
-    "axios": "^1.4.0",
-    "bcrypt": "^5.1.0",
-    "dotenv": "^16.1.0",
-    "express-jwt": "^8.4.1",
-    "jsonwebtoken": "^9.0.0",
-    "sequelize": "^6.31.1",
-    "sqlite3": "^5.1.6"
+    "@shopify/cli": "3.45.4"
   },
-  "author": "Mrsyr"
+  "author": "Mrsyr",
+  "devDependencies": {
+    "eslint": "^8.47.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-plugin-import": "^2.28.1",
+    "eslint-plugin-jsx-a11y": "^6.7.1",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0"
+  }
 }
