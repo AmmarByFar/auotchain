@@ -1,7 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { CancelMajor, ArchiveMinor, DeleteMinor, CalendarMinor } from '@shopify/polaris-icons';
+import {
+  CancelMajor,
+  ArchiveMinor,
+  DeleteMinor,
+  CalendarMinor,
+} from '@shopify/polaris-icons';
 
 import {
   Page,
@@ -20,9 +25,10 @@ import {
   Label,
   HorizontalGrid,
   VerticalStack,
-  Modal
+  Modal,
 } from '@shopify/polaris';
 
+const currentDate = new Date();
 export default function CreateOrder() {
   const [orderData, setOrderData] = useState({
     shopDomain: '',
@@ -32,20 +38,20 @@ export default function CreateOrder() {
     supplierID: '',
     warehouseManagerID: '',
     orderStatus: '',
-    orderDate: new Date(),
+    orderDate: currentDate,
     deliveryNotes: '',
     shipmentTracking: '',
-    shipmentDate: new Date(),
-    expectedArrivalDate: new Date(),
+    shipmentDate: currentDate,
+    expectedArrivalDate: currentDate,
     shipmentStatus: '',
     shipmentNotes: '',
     invoiceNumber: '',
-    invoiceDate: new Date(),
-    filePath: ''
+    invoiceDate: currentDate,
+    filePath: '',
   });
-  
+
   const [orderDateVisible, setOrderDateVisible] = useState(false);
-  const [orderDate, setOrderDate] = useState(new Date());
+  const [orderDate, setOrderDate] = useState(currentDate);
   const [{ orderDateMonth, orderDateYear }, setOrderDateValues] = useState({
     orderDateMonth: orderDate.getMonth(),
     orderDateYear: orderDate.getFullYear(),
@@ -53,25 +59,24 @@ export default function CreateOrder() {
   const orderDateFormattedValue = orderDate.toISOString().slice(0, 10);
   const orderDatePickerRef = useRef(null);
 
-function handleOrderDateChange({ end: newSelectedDate }) {
-  setOrderDate(newSelectedDate);
-  setOrderDateVisible(false);
-}
+  function handleOrderDateChange({ end: newSelectedDate }) {
+    setOrderDate(newSelectedDate);
+    setOrderDateVisible(false);
+  }
 
-function handleOrderMonthChange(month, year) {
-  setOrderDateValues({ orderDateMonth: month, orderDateYear: year  });
-}
-
+  function handleOrderMonthChange(month, year) {
+    setOrderDateValues({ orderDateMonth: month, orderDateYear: year });
+  }
 
   const handleSubmit = () => {
     // Call API to create the order, shipment, and invoice using orderData
   };
 
   const orderStatusOptions = [
-    {label: '', value: ''},
-    {label: 'Created', value: 'created'},
-    {label: 'Shipped', value: 'shipped'},
-    {label: 'Delivered', value: 'delivered'},
+    { label: '', value: '' },
+    { label: 'Created', value: 'created' },
+    { label: 'Shipped', value: 'shipped' },
+    { label: 'Delivered', value: 'delivered' },
   ];
 
   const [active, setActive] = useState(false);
@@ -85,117 +90,156 @@ function handleOrderMonthChange(month, year) {
   const activator = <Button onClick={handleModalChange}>Add Shipment</Button>;
 
   return (
-  <Page
-    breadcrumbs={[{ content: "Orders", url: "/orders" }]}
-    title="New Purchase Order"
-    primaryAction={{ content: "Create Purchase Order", onAction: () => {  } }} 
-    secondaryActions={[
-      {
-        content: "Cancel",
-        icon: CancelMajor,
-        accessibilityLabel: "Secondary action label",
-        onAction: () => { navigate("/orders"); },
-      }      
-    ]}
-  >
-    <HorizontalGrid columns={{ xs: 1, md: "2fr 1fr" }} gap="4">
-      <VerticalStack gap="4">
-        <Banner title="Order Information">
-          <TextField
-            label="SKU"
-            value={orderData.SKU}
-            onChange={(value) => setOrderData(prevState => ({ ...prevState, SKU: value }))}
-          />
-          <TextField
-            label="Order Amount"
-            type="number"
-            value={orderData.orderAmount}
-            onChange={(value) => setOrderData(prevState => ({ ...prevState, orderAmount: value }))}
-          />
-          <TextField
-            label="Supplier"
-            value={orderData.supplierID}
-            onChange={(value) => setOrderData(prevState => ({ ...prevState, supplierID: value }))}
-          />
-          <TextField
-            label="Warehouse Manager"
-            value={orderData.warehouseManagerID}
-            onChange={(value) => setOrderData(prevState => ({ ...prevState, warehouseManagerID: value }))}
-          />
-          <Popover
-            active={orderDateVisible}
-            autofocusTarget="none"
-            preferredAlignment="left"
-            fullWidth
-            preferInputActivator={false}
-            preferredPosition="below"
-            preventCloseOnChildOverlayClick
-            onClose={() => setOrderDateVisible(false)}
-            activator={
+    <Page
+      breadcrumbs={[{ content: 'Orders', url: '/orders' }]}
+      title='New Purchase Order'
+      primaryAction={{ content: 'Create Purchase Order', onAction: () => {} }}
+      secondaryActions={[
+        {
+          content: 'Cancel',
+          icon: CancelMajor,
+          accessibilityLabel: 'Secondary action label',
+          onAction: () => {
+            navigate('/orders');
+          },
+        },
+      ]}
+    >
+      <HorizontalGrid columns={{ xs: 1, md: '2fr 1fr' }} gap='4'>
+        <VerticalStack gap='4'>
+          <Banner title='Order Information'>
             <TextField
-            role="combobox"
-            label={"Order Date"}
-            prefix={<Icon source={CalendarMinor} />}
-            value={orderDateFormattedValue}
-            onFocus={() => setOrderDateVisible(true)}
-            onChange={() => {}} // keep this empty since the date picker handles the change
-            autoComplete="off"
-            />
-            }
-          >
-            <AlphaCard ref={orderDatePickerRef}>
-              <DatePicker
-              month={orderDateMonth}
-              year={orderDateYear}
-              selected={orderDate}
-              onMonthChange={handleOrderMonthChange}
-              onChange={handleOrderDateChange}
-              />
-            </AlphaCard>
-          </Popover>
-          <TextField
-          label="Order Notes"
-          value={orderData.deliveryNotes}
-          onChange={(value) => setOrderData(prevState => ({ ...prevState, deliveryNotes: value }))}
-          />
-        </Banner>
-      </VerticalStack>
-      <VerticalStack gap={{ xs: "4", md: "2" }}>
-      <Banner title="Shipment Information">
-        <Modal
-          activator={activator}
-          open={active}
-          onClose={handleClose}
-          title="Add Shipment"
-          primaryAction={{
-            content: 'Add',
-            onAction: handleClose,
-          }}
-          secondaryActions={[
-            {
-              content: 'Cancel',
-              onAction: handleClose,
-            },
-          ]}
-        >
-        <Modal.Section>
-          <TextField
-              label="Shipment Tracking"
-              value={orderData.shipmentTracking}
-              onChange={(value) => setOrderData(prevState => ({ ...prevState, shipmentTracking: value }))}
-            />
-            <Select
-              label="Shipment Status"
-              options={orderStatusOptions}
-              onChange={(value) => setOrderData(prevState => ({ ...prevState, shipmentStatus: value }))}
-              value={orderData.shipmentStatus}
+              label='SKU'
+              value={orderData.SKU}
+              onChange={(value) =>
+                setOrderData((prevState) => ({ ...prevState, SKU: value }))
+              }
             />
             <TextField
-              label="Shipment Notes"
-              value={orderData.shipmentNotes}
-              onChange={(value) => setOrderData(prevState => ({ ...prevState, shipmentNotes: value }))}
+              label='Order Amount'
+              type='number'
+              value={orderData.orderAmount}
+              onChange={(value) =>
+                setOrderData((prevState) => ({
+                  ...prevState,
+                  orderAmount: value,
+                }))
+              }
             />
-          {/* <LegacyStack vertical>
+            <TextField
+              label='Supplier'
+              value={orderData.supplierID}
+              onChange={(value) =>
+                setOrderData((prevState) => ({
+                  ...prevState,
+                  supplierID: value,
+                }))
+              }
+            />
+            <TextField
+              label='Warehouse Manager'
+              value={orderData.warehouseManagerID}
+              onChange={(value) =>
+                setOrderData((prevState) => ({
+                  ...prevState,
+                  warehouseManagerID: value,
+                }))
+              }
+            />
+            <Popover
+              active={orderDateVisible}
+              autofocusTarget='none'
+              preferredAlignment='left'
+              fullWidth
+              preferInputActivator={false}
+              preferredPosition='below'
+              preventCloseOnChildOverlayClick
+              onClose={() => setOrderDateVisible(false)}
+              activator={
+                <TextField
+                  role='combobox'
+                  label={'Order Date'}
+                  prefix={<Icon source={CalendarMinor} />}
+                  value={orderDateFormattedValue}
+                  onFocus={() => setOrderDateVisible(true)}
+                  onChange={() => {}} // keep this empty since the date picker handles the change
+                  autoComplete='off'
+                />
+              }
+            >
+              <AlphaCard ref={orderDatePickerRef}>
+                <DatePicker
+                  month={orderDateMonth}
+                  year={orderDateYear}
+                  selected={orderDate}
+                  onMonthChange={handleOrderMonthChange}
+                  onChange={handleOrderDateChange}
+                />
+              </AlphaCard>
+            </Popover>
+            <TextField
+              label='Order Notes'
+              value={orderData.deliveryNotes}
+              onChange={(value) =>
+                setOrderData((prevState) => ({
+                  ...prevState,
+                  deliveryNotes: value,
+                }))
+              }
+            />
+          </Banner>
+        </VerticalStack>
+        <VerticalStack gap={{ xs: '4', md: '2' }}>
+          <Banner title='Shipment Information'>
+            <Modal
+              activator={activator}
+              open={active}
+              onClose={handleClose}
+              title='Add Shipment'
+              primaryAction={{
+                content: 'Add',
+                onAction: handleClose,
+              }}
+              secondaryActions={[
+                {
+                  content: 'Cancel',
+                  onAction: handleClose,
+                },
+              ]}
+            >
+              <Modal.Section>
+                <TextField
+                  label='Shipment Tracking'
+                  value={orderData.shipmentTracking}
+                  onChange={(value) =>
+                    setOrderData((prevState) => ({
+                      ...prevState,
+                      shipmentTracking: value,
+                    }))
+                  }
+                />
+                <Select
+                  label='Shipment Status'
+                  options={orderStatusOptions}
+                  onChange={(value) =>
+                    setOrderData((prevState) => ({
+                      ...prevState,
+                      shipmentStatus: value,
+                    }))
+                  }
+                  value={orderData.shipmentStatus}
+                />
+                <TextField
+                  label='Shipment Notes'
+                  value={orderData.shipmentNotes}
+                  onChange={(value) =>
+                    setOrderData((prevState) => ({
+                      ...prevState,
+                      shipmentNotes: value,
+                    }))
+                  }
+                />
+                {/* <LegacyStack vertical>
             <LegacyStack.Item>
               <ChoiceList
                 title="Export"
@@ -224,45 +268,54 @@ function handleOrderMonthChange(month, year) {
               />
             </LegacyStack.Item>
           </LegacyStack> */}
-        </Modal.Section>
-      </Modal>
-      </Banner>
-      <Banner title="Invoice Information">
-        <Modal
-            activator={activator}
-            open={active}
-            onClose={handleClose}
-            title="Add Shipment"
-            primaryAction={{
-              content: 'Add',
-              onAction: handleClose,
-            }}
-            secondaryActions={[
-              {
-                content: 'Cancel',
+              </Modal.Section>
+            </Modal>
+          </Banner>
+          <Banner title='Invoice Information'>
+            <Modal
+              activator={activator}
+              open={active}
+              onClose={handleClose}
+              title='Add Shipment'
+              primaryAction={{
+                content: 'Add',
                 onAction: handleClose,
-              },
-            ]}
-          >
-            <Modal.Section>
-            <TextField
-                label="Invoice Number"
-                value={orderData.invoiceNumber}
-                onChange={(value) => setOrderData(prevState => ({ ...prevState, invoiceNumber: value }))}
-              />
-              <TextField
-                label="Invoice Date"
-                value={orderData.invoiceNumber}
-                onChange={(value) => setOrderData(prevState => ({ ...prevState, invoiceNumber: value }))}
-              />
-              <DropZone label="Invoice file" allowMultiple={false}>
-                <DropZone.FileUpload />
-              </DropZone>
-          </Modal.Section>   
-          </Modal>
-        </Banner>
-          
-      </VerticalStack>
+              }}
+              secondaryActions={[
+                {
+                  content: 'Cancel',
+                  onAction: handleClose,
+                },
+              ]}
+            >
+              <Modal.Section>
+                <TextField
+                  label='Invoice Number'
+                  value={orderData.invoiceNumber}
+                  onChange={(value) =>
+                    setOrderData((prevState) => ({
+                      ...prevState,
+                      invoiceNumber: value,
+                    }))
+                  }
+                />
+                <TextField
+                  label='Invoice Date'
+                  value={orderData.invoiceNumber}
+                  onChange={(value) =>
+                    setOrderData((prevState) => ({
+                      ...prevState,
+                      invoiceNumber: value,
+                    }))
+                  }
+                />
+                <DropZone label='Invoice file' allowMultiple={false}>
+                  <DropZone.FileUpload />
+                </DropZone>
+              </Modal.Section>
+            </Modal>
+          </Banner>
+        </VerticalStack>
       </HorizontalGrid>
     </Page>
   );
@@ -286,14 +339,14 @@ function handleOrderMonthChange(month, year) {
 //       <Page
 //         breadcrumbs={[{ content: "Orders", url: "/orders" }]}
 //         title="New Purchase Order"
-//         primaryAction={{ content: "Create Purchase Order", onAction: () => {  } }} 
+//         primaryAction={{ content: "Create Purchase Order", onAction: () => {  } }}
 //         secondaryActions={[
 //           {
 //             content: "Cancel",
 //             icon: CancelMajor,
 //             accessibilityLabel: "Secondary action label",
 //             onAction: () => { navigate("/orders"); },
-//           }      
+//           }
 //         ]}
 //       >
 //         <HorizontalGrid columns={{ xs: 1, md: "2fr 1fr" }} gap="4">
