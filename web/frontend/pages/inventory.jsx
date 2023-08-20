@@ -33,6 +33,15 @@ const ProductsList = () => {
     );
   };
 
+  const navigateToCreateOrder = () => {
+    // Fetch selected products based on selectedResources
+    const selectedProducts = products.filter(product => 
+        selectedResources.includes(product.id)
+    );
+    // Navigate to CreateOrder with selectedProducts as state
+    navigate("/createorder", { state: { selectedProducts } });
+  }
+
   // Handler to save the edited OnHand value to the backend
   const saveOnHand = (sku) => {
     const product = products.find(p => p.sku === sku);
@@ -73,7 +82,7 @@ const ProductsList = () => {
 
   return (
     <Page title="Inventory Levels"
-      primaryAction={{ content: "New Purchase Order", onAction: () => { navigate("/createorder") } }} 
+    primaryAction={{ content: "New Purchase Order", onAction: navigateToCreateOrder }}  
       secondaryActions={[
         {
           content: "Update Status",

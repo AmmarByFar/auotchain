@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
-import { CancelMajor, ArchiveMinor, DeleteMinor, CalendarMinor } from '@shopify/polaris-icons';
+import { CancelMajor, ArchiveMinor, DeleteMinor, CalendarMinor, CancelMinor} from '@shopify/polaris-icons';
 
 import {
   Page,
@@ -18,8 +18,11 @@ import {
   Select,
   DropZone,
   Label,
+  Text,
   HorizontalGrid,
   VerticalStack,
+  HorizontalStack,
+  Thumbnail,
   Modal
 } from '@shopify/polaris';
 
@@ -53,6 +56,9 @@ export default function CreateOrder() {
   const orderDateFormattedValue = orderDate.toISOString().slice(0, 10);
   const orderDatePickerRef = useRef(null);
 
+  const location = useLocation();
+  const selectedProducts = location.state?.selectedProducts || [];
+
 function handleOrderDateChange({ end: newSelectedDate }) {
   setOrderDate(newSelectedDate);
   setOrderDateVisible(false);
@@ -60,6 +66,12 @@ function handleOrderDateChange({ end: newSelectedDate }) {
 
 function handleOrderMonthChange(month, year) {
   setOrderDateValues({ orderDateMonth: month, orderDateYear: year  });
+}
+
+function handleProductChange(index, value) {
+  const newProducts = [...products];
+  newProducts[index].orderAmount = value;
+  setProducts(newProducts);
 }
 
 
@@ -84,6 +96,11 @@ function handleOrderMonthChange(month, year) {
 
   const activator = <Button onClick={handleModalChange}>Add Shipment</Button>;
 
+  const [products, setProducts] = useState(selectedProducts.map(p => ({
+    ...p, 
+    orderAmount: ''
+  })));
+
   return (
   <Page
     breadcrumbs={[{ content: "Orders", url: "/orders" }]}
@@ -101,17 +118,25 @@ function handleOrderMonthChange(month, year) {
     <HorizontalGrid columns={{ xs: 1, md: "2fr 1fr" }} gap="4">
       <VerticalStack gap="4">
         <Banner title="Order Information">
-          <TextField
+          {products.map((product, index) => (
+          <HorizontalStack gap="4" wrap={false} key={product.id}>
+            <Thumbnail
+              source={product.imageUrl}
+              alt={`Product ${product.sku}`}
+            />
+            <Text variant="headingXs" as="h6">{`SKU: ${product.sku}`}</Text>
+            <TextField
+              value={product.orderAmount}
+              onChange={(value) => handleProductChange(index, value)}
+            />
+            <Icon source={CancelMinor} color="critical" />
+          </HorizontalStack>
+          ))}
+          {/* <TextField
             label="SKU"
             value={orderData.SKU}
             onChange={(value) => setOrderData(prevState => ({ ...prevState, SKU: value }))}
-          />
-          <TextField
-            label="Order Amount"
-            type="number"
-            value={orderData.orderAmount}
-            onChange={(value) => setOrderData(prevState => ({ ...prevState, orderAmount: value }))}
-          />
+          /> */}
           <TextField
             label="Supplier"
             value={orderData.supplierID}
@@ -138,7 +163,7 @@ function handleOrderMonthChange(month, year) {
             prefix={<Icon source={CalendarMinor} />}
             value={orderDateFormattedValue}
             onFocus={() => setOrderDateVisible(true)}
-            onChange={() => {}} // keep this empty since the date picker handles the change
+            onChange={() => {}} 
             autoComplete="off"
             />
             }
@@ -195,35 +220,6 @@ function handleOrderMonthChange(month, year) {
               value={orderData.shipmentNotes}
               onChange={(value) => setOrderData(prevState => ({ ...prevState, shipmentNotes: value }))}
             />
-          {/* <LegacyStack vertical>
-            <LegacyStack.Item>
-              <ChoiceList
-                title="Export"
-                choices={[
-                  {label: 'Current page', value: CURRENT_PAGE},
-                  {label: 'All customers', value: ALL_CUSTOMERS},
-                  {label: 'Selected customers', value: SELECTED_CUSTOMERS},
-                ]}
-                selected={selectedExport}
-                onChange={handleSelectedExport}
-              />
-            </LegacyStack.Item>
-            <LegacyStack.Item>
-              <ChoiceList
-                title="Export as"
-                choices={[
-                  {
-                    label:
-                      'CSV for Excel, Numbers, or other spreadsheet programs',
-                    value: CSV_EXCEL,
-                  },
-                  {label: 'Plain CSV file', value: CSV_PLAIN},
-                ]}
-                selected={selectedExportAs}
-                onChange={handleSelectedExportAs}
-              />
-            </LegacyStack.Item>
-          </LegacyStack> */}
         </Modal.Section>
       </Modal>
       </Banner>
@@ -261,88 +257,8 @@ function handleOrderMonthChange(month, year) {
           </Modal.Section>   
           </Modal>
         </Banner>
-          
       </VerticalStack>
       </HorizontalGrid>
     </Page>
   );
 }
-
-// // This example is for guidance purposes. Copying it will come with caveats.
-// export default function CreateOrder() {
-//     const SkeletonLabel = (props) => {
-//       return (
-//         <Box
-//           background="surface-neutral"
-//           minHeight="1rem"
-//           maxWidth="5rem"
-//           borderRadius="base"
-//           {...props}
-//         />
-//       );
-//     };
-//     const navigate = useNavigate();
-//     return (
-//       <Page
-//         breadcrumbs={[{ content: "Orders", url: "/orders" }]}
-//         title="New Purchase Order"
-//         primaryAction={{ content: "Create Purchase Order", onAction: () => {  } }} 
-//         secondaryActions={[
-//           {
-//             content: "Cancel",
-//             icon: CancelMajor,
-//             accessibilityLabel: "Secondary action label",
-//             onAction: () => { navigate("/orders"); },
-//           }      
-//         ]}
-//       >
-//         <HorizontalGrid columns={{ xs: 1, md: "2fr 1fr" }} gap="4">
-//           <VerticalStack gap="4">
-//             <AlphaCard roundedAbove="sm">
-//               <VerticalStack gap="4">
-//                 <SkeletonLabel />
-//                 <Box border="divider" borderRadius="base" minHeight="2rem" />
-//                 <SkeletonLabel maxWidth="8rem" />
-//                 <Box border="divider" borderRadius="base" minHeight="20rem" />
-//               </VerticalStack>
-//             </AlphaCard>
-//             <AlphaCard roundedAbove="sm">
-//               <VerticalStack gap="4">
-//                 <SkeletonDisplayText size="small" />
-//                 <HorizontalGrid columns={{ xs: 1, md: 2 }}>
-//                   <Box border="divider" borderRadius="base" minHeight="10rem" />
-//                   <Box border="divider" borderRadius="base" minHeight="10rem" />
-//                 </HorizontalGrid>
-//               </VerticalStack>
-//             </AlphaCard>
-//           </VerticalStack>
-//           <VerticalStack gap={{ xs: "4", md: "2" }}>
-//             <AlphaCard roundedAbove="sm">
-//               <VerticalStack gap="4">
-//                 <SkeletonDisplayText size="small" />
-//                 <Box border="divider" borderRadius="base" minHeight="2rem" />
-//                 <Box>
-//                   <Bleed marginInline={{ xs: 4, sm: 5 }}>
-//                     <Divider />
-//                   </Bleed>
-//                 </Box>
-//                 <SkeletonLabel />
-//                 <Divider />
-//                 <SkeletonBodyText />
-//               </VerticalStack>
-//             </AlphaCard>
-//             <AlphaCard roundedAbove="sm">
-//               <VerticalStack gap="4">
-//                 <SkeletonLabel />
-//                 <Box border="divider" borderRadius="base" minHeight="2rem" />
-//                 <SkeletonLabel maxWidth="4rem" />
-//                 <Box border="divider" borderRadius="base" minHeight="2rem" />
-//                 <SkeletonLabel />
-//                 <SkeletonBodyText />
-//               </VerticalStack>
-//             </AlphaCard>
-//           </VerticalStack>
-//         </HorizontalGrid>
-//       </Page>
-//     )
-//   }
