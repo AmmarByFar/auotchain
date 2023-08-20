@@ -5,24 +5,19 @@ import {
   Page,
   IndexTable,
   Text,
-  LegacyCard,
   useIndexResourceState,
   AlphaCard,
   EmptySearchResult,
-  IndexFilters,
-  Frame,
-  Spinner,
   TextField,
 } from '@shopify/polaris';
-import { useAppQuery, useAuthenticatedFetch } from '../hooks';
 import { ChecklistMajor, EditMinor } from '@shopify/polaris-icons';
+import { useToast } from '@shopify/app-bridge-react';
+import { useAppQuery, useAuthenticatedFetch } from '../hooks';
 import usePagination from '../hooks/usePagination';
 import Paginator from '../components/UI/Paginator';
-import { Loading, useToast } from '@shopify/app-bridge-react';
 import ContextualSaveBar from '../components/UI/ContextualSaveBar';
 
-const isEqual = (object1, object2) =>
-  JSON.stringify(object1) === JSON.stringify(object2);
+const isEqual = (object1, object2) => JSON.stringify(object1) === JSON.stringify(object2);
 
 const tableHeadings = [
   { title: 'Image' },
@@ -34,7 +29,7 @@ const tableHeadings = [
   { title: 'Pending Orders' },
 ];
 
-const ProductsList = () => {
+function ProductsList() {
   const navigate = useNavigate();
   const [isSaving, setIsSaving] = useState(false);
   const [products, setProducts] = useState([]);
@@ -53,9 +48,9 @@ const ProductsList = () => {
     url: '/api/products',
     reactQueryOptions: {
       queryKey: 'products',
-      onSuccess: (data) => {
-        const clone1 = structuredClone(data);
-        const clone2 = structuredClone(data);
+      onSuccess: (result) => {
+        const clone1 = structuredClone(result);
+        const clone2 = structuredClone(result);
         setProducts(clone1);
         setOriginalProducts(clone2);
       },
@@ -108,20 +103,20 @@ const ProductsList = () => {
   const handleOnHandChange = useCallback(
     (product, value) => {
       if (!prdouctsOnEdit.includes(product.id)) {
-        setPrdouctsOnEdit((prev) => {
-          return [...prev, product.id];
-        });
+        setPrdouctsOnEdit((prev) => [...prev, product.id]);
       }
-      setProducts((prevProducts) =>
-        prevProducts.map((p) => {
-          if (p.sku === product.sku) {
-            p.onHand = Number(value);
-          }
-          return p;
-        })
-      );
+      const productsCopy = structuredClone(products);
+      const upadateProductsOnHand = (p) => {
+        const productCopy = structuredClone(p);
+        if (p.id === product.id) {
+          productCopy.onHand = Number(value);
+        }
+        return productCopy;
+      };
+      const updatedProducts = productsCopy.map(upadateProductsOnHand);
+      setProducts(updatedProducts);
     },
-    [products]
+    [products],
   );
 
   // Handler to save the edited OnHand value to the backend
@@ -161,11 +156,10 @@ const ProductsList = () => {
       });
   };
 
-
   const emptyStateMarkup = (
     <EmptySearchResult
-      title={'No orders yet'}
-      description={'Try changing the filters or search term'}
+      title="No orders yet"
+      description="Try changing the filters or search term"
       withIllustration
     />
   );
@@ -173,15 +167,13 @@ const ProductsList = () => {
   return (
     <Page
       fullWidth
-      title='Inventory Levels'
+      title="Inventory Levels"
       primaryAction={{
         content: 'New Purchase Order',
         onAction: () => {
           navigate('/createorder', {
             state: {
-              selectedProducts: products.find((p) =>
-                selectedResources.includes(p.id)
-              ),
+              selectedProducts: products.find((p) => selectedResources.includes(p.id)),
             },
           });
         },
@@ -213,7 +205,7 @@ const ProductsList = () => {
           onSelectionChange={handleSelectionChange}
           headings={tableHeadings}
           emptyStateMarkup={emptyStateMarkup}
-          hasMoreItems={true}
+          hasMoreItems
         >
           {currentProducts.map((product, index) => (
             <IndexTable.Row
@@ -230,19 +222,19 @@ const ProductsList = () => {
                 />
               </IndexTable.Cell>
               <IndexTable.Cell>
-                <Text variant='bodyMd' fontWeight='bold' as='span'>
+                <Text variant="bodyMd" fontWeight="bold" as="span">
                   {product.sku || 'NA'}
                 </Text>
               </IndexTable.Cell>
               <IndexTable.Cell>
-                <Text variant='bodyMd' fontWeight='bold' as='span'>
+                <Text variant="bodyMd" fontWeight="bold" as="span">
                   {product.title}
                 </Text>
               </IndexTable.Cell>
               <IndexTable.Cell>
                 <div onClick={(e) => e.stopPropagation()}>
                   <TextField
-                    type='number'
+                    type="number"
                     value={product.onHand}
                     onChange={(value) => {
                       handleOnHandChange(product, value);
@@ -269,6 +261,6 @@ const ProductsList = () => {
       </AlphaCard>
     </Page>
   );
-};
+}
 
 export default ProductsList;
