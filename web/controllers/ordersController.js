@@ -40,7 +40,7 @@ export const getOrders = async (req, res) => {
               'WarehouseManager.id'
           ]
       });
-      // console.log(JSON.stringify(orders, null, 2));
+      console.log(JSON.stringify(orders, null, 2));
 
       res.json(orders);
   } catch (error) {
@@ -61,13 +61,45 @@ export const updateOrder = async(req, res) =>{
 
 }
 
-export const createOrder = async(req, res) => {
-    try{
-        const shopDomain = res.locals.shopify.session.shop;
+export const createOrder = async (req, res) => {
+  try {
+      const shopDomain = res.locals.shopify.session.shop;
 
-    }catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Server error on createOrder' });
-    }
+      const { 
+          orderDate, 
+          orderNotes, 
+          supplierID, 
+          warehouseManagerID,
+          items // Array of {SKU, quantity}
+      } = req.body;
 
-}
+      const result = await db.transaction(async (t) => {
+
+          // Create the Order first
+          const newOrder = await Order.create({
+              shopDomain,
+              orderDate,
+              orderNotes,
+              supplierID,
+              warehouseManagerID,
+              orderStatus: "Pending"
+          }, { transaction: t });
+
+          const orderItems = items.map(item => ({
+              orderID: newOrder.id,
+              SKU: item.SKU,
+              quantity: item.quantity,
+          }));
+
+          await OrderItem.bulkCreate(orderItems, { transaction: t });
+
+          return newOrder; 
+      });
+
+      res.json(result);  
+
+  } catch (err) {
+      console.error('Error in createOrder:', err);
+      res.status(500).json({ message: 'Server error on createOrder' });
+  }
+};
