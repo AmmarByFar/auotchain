@@ -1,6 +1,7 @@
 import Order from "../models/order.js"
 import OrderItem from "../models/orderItem.js";
 import User from "../models/user.js"
+import Shipment from "../models/shipment.js"
 import shopify from "../shopify.js"
 import Sequelize from 'sequelize';
 
@@ -63,40 +64,52 @@ export const updateOrder = async(req, res) =>{
 
 export const createOrder = async (req, res) => {
   try {
-      const shopDomain = res.locals.shopify.session.shop;
+    const shopDomain = res.locals.shopify.session.shop;
 
-      const { 
-          orderDate, 
-          orderNotes, 
-          supplierID, 
+    const { 
+        orderDate, 
+        orderNotes, 
+        supplierID, 
+        warehouseManagerID,
+        items, // Array of {SKU, quantity}
+        shipments // Array of {amount, tracking, status, notes}
+    } = req.body;
+
+    const result = await db.transaction(async (t) => {
+      // Create the Order first
+      const newOrder = await Order.create({
+          shopDomain,
+          orderDate,
+          orderNotes,
+          supplierID,
           warehouseManagerID,
-          items // Array of {SKU, quantity}
-      } = req.body;
+          orderStatus: "Pending"
+      }, { transaction: t });
 
-      const result = await db.transaction(async (t) => {
+      // Create Order Items
+      const orderItems = items.map(item => ({
+          orderID: newOrder.id,
+          SKU: item.SKU,
+          quantity: item.quantity,
+      }));
 
-          // Create the Order first
-          const newOrder = await Order.create({
-              shopDomain,
-              orderDate,
-              orderNotes,
-              supplierID,
-              warehouseManagerID,
-              orderStatus: "Pending"
-          }, { transaction: t });
+      await OrderItem.bulkCreate(orderItems, { transaction: t });
 
-          const orderItems = items.map(item => ({
-              orderID: newOrder.id,
-              SKU: item.SKU,
-              quantity: item.quantity,
-          }));
+      // Create Shipments for the Order
+      const orderShipments = shipments.map(shipment => ({
+          orderID: newOrder.id,
+          amount: shipment.amount,
+          tracking: shipment.tracking,
+          status: shipment.status,
+          notes: shipment.notes,
+      }));
 
-          await OrderItem.bulkCreate(orderItems, { transaction: t });
+      await Shipment.bulkCreate(orderShipments, { transaction: t });
 
-          return newOrder; 
-      });
+      return newOrder; 
+    });
 
-      res.json(result);  
+    res.json(result);  
 
   } catch (err) {
       console.error('Error in createOrder:', err);

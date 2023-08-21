@@ -23,6 +23,8 @@ import { getOrders, updateOrder, createOrder } from './controllers/ordersControl
 import './models/order.js';
 import './models/orderItem.js';
 import './models/user.js';
+import './models/invoice.js'
+import './models/shipment.js'
 import './models/associations.js';
 
 // TODO: REMOVE alter:true FROM BELOW BEFORE PUSHING TO PRODUCTION

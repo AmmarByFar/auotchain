@@ -1,6 +1,5 @@
 import Sequelize from 'sequelize';
 import db from '../config/database.js';
-import Order from './order.js';
 
 const Invoice = db.define('Invoice', {
   id: {
@@ -17,11 +16,11 @@ const Invoice = db.define('Invoice', {
       key: 'id'
     }
   },
-  invoiceAmount: {
-    type: Sequelize.STRING,
+  amount: {
+    type: Sequelize.DECIMAL,
     allowNull: false
   },
-  invoiceDate: {
+  date: {
     type: Sequelize.DATE,
     allowNull: true
   },
@@ -30,7 +29,5 @@ const Invoice = db.define('Invoice', {
     allowNull: true
   }
 });
-
-Invoice.belongsTo(Order, {foreignKey: 'orderID'});
 
 export default Invoice;
