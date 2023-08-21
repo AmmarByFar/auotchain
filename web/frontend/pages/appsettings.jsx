@@ -1,40 +1,38 @@
-import { 
-  Page, 
-  Text, 
-  Icon, 
-  Popover, 
-  TextField, 
-  VerticalStack, 
-  HorizontalGrid, 
-  Box, 
-  Card, 
-  Toast, 
-  Frame, 
-  Checkbox, 
-  DatePicker 
-} from "@shopify/polaris";
-import { TitleBar } from "@shopify/app-bridge-react";
-import { useAppQuery, useAuthenticatedFetch } from "../hooks";
+import {
+  Page,
+  Text,
+  Icon,
+  Popover,
+  TextField,
+  VerticalStack,
+  HorizontalGrid,
+  Box,
+  Card,
+  Toast,
+  Frame,
+  Checkbox,
+  DatePicker,
+} from '@shopify/polaris';
+import { TitleBar } from '@shopify/app-bridge-react';
+import { useAppQuery, useAuthenticatedFetch } from '../hooks';
 import { useState, useEffect, useRef } from 'react';
-import { CalendarMinor} from '@shopify/polaris-icons';
+import { CalendarMinor } from '@shopify/polaris-icons';
 
 export default function AppSettings() {
-
-  const [reorderLevel, setReorderLevel] = useState("");
-  const [reorderAmount, setReorderAmount] = useState("");
+  const [reorderLevel, setReorderLevel] = useState('');
+  const [reorderAmount, setReorderAmount] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [toastProps, setToastProps] = useState({ content: null });
   const [isFormModified, setIsFormModified] = useState(false);
 
-  const [initialReorderLevel, setInitialReorderLevel] = useState("");
-  const [initialReorderAmount, setInitialReorderAmount] = useState("");
+  const [initialReorderLevel, setInitialReorderLevel] = useState('');
+  const [initialReorderAmount, setInitialReorderAmount] = useState('');
 
-  const [startDate, setStartDate] = useState("");
-  const [initialStartDate, setInitialStartDate] = useState("");
+  const [startDate, setStartDate] = useState('');
+  const [initialStartDate, setInitialStartDate] = useState('');
 
   const [trackingEnabled, setTrackingEnabled] = useState(false);
   const [initialTrackingEnabled, setInitialTrackingEnabled] = useState(false);
-
 
   const fetch = useAuthenticatedFetch();
 
@@ -42,21 +40,21 @@ export default function AppSettings() {
     const getInitialSettings = async () => {
       const response = await fetch('/api/appsettings');
       const data = await response.json();
-      if(data.settings) {
+      if (data.settings) {
         setInitialReorderLevel(data.settings.reorderLevel.toString());
         setInitialReorderAmount(data.settings.reorderAmount.toString());
         setReorderLevel(data.settings.reorderLevel.toString());
         setReorderAmount(data.settings.reorderAmount.toString());
-        setInitialStartDate(data.settings.startDate || "");
-        setStartDate(data.settings.startDate || "");
+        setInitialStartDate(data.settings.startDate || '');
+        setStartDate(data.settings.startDate || '');
         setSelectedDate(new Date(data.settings.startDate || new Date()));
         setInitialTrackingEnabled(data.settings.trackingEnabled || false);
         setTrackingEnabled(data.settings.trackingEnabled || false);
       }
-    }
+    };
     getInitialSettings();
   }, []);
-  
+
   const handleStartDateChange = (newDate) => {
     setStartDate(newDate.toISOString().slice(0, 10));
   };
@@ -97,14 +95,19 @@ export default function AppSettings() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ reorderLevel, reorderAmount, startDate, trackingEnabled }),
+      body: JSON.stringify({
+        reorderLevel,
+        reorderAmount,
+        startDate,
+        trackingEnabled,
+      }),
     });
 
-    if(response.ok) {
-      setToastProps({ content: "Settings saved successfully!" });
+    if (response.ok) {
+      setToastProps({ content: 'Settings saved successfully!' });
     } else {
       setToastProps({
-        content: "There was an error saving your settings",
+        content: 'There was an error saving your settings',
         error: true,
       });
     }
@@ -142,7 +145,7 @@ export default function AppSettings() {
       : false;
   }
   function handleInputValueChange() {
-    console.log("handleInputValueChange");
+    console.log('handleInputValueChange');
   }
   function handleOnClose({ relatedTarget }) {
     setVisible(false);
@@ -166,68 +169,76 @@ export default function AppSettings() {
 
   return (
     <Frame>
-    {toastMarkup}
-    <Page
-      divider
-      primaryAction={{ content: "Save Settings", disabled: !isFormModified, loading: isLoading, onAction: () => handleSubmit() }}
-      secondaryActions={[
-        {
-          content: "Default",
-          accessibilityLabel: "Reset settings to default.",
-          onAction: () => alert("Duplicate action"),
-        },
-      ]}
-    >
-      <VerticalStack gap={{ xs: "8", sm: "4" }}>
-        <HorizontalGrid columns={{ xs: "1fr", md: "2fr 5fr" }} gap="4">
-          <Box
-            as="section"
-            paddingInlineStart={{ xs: 4, sm: 0 }}
-            paddingInlineEnd={{ xs: 4, sm: 0 }}
-          >
-            <VerticalStack gap="4">
-              <Text as="h3" variant="headingMd">
-                Inventory Reorder Levels
-              </Text>
-              <Text as="p" variant="bodyMd">
-                Products will be flagged when inventory levels fall below these values.
-              </Text>
-            </VerticalStack>
-          </Box>
-          <Card roundedAbove="sm">
-            <VerticalStack gap="4">
-              <TextField
-                label="Reorder level"
-                type="number"
-                value={reorderLevel}
-                onChange={handleReorderLevelChange}
-                autoComplete="off"
-              />
-            </VerticalStack>
-          </Card>
-        </HorizontalGrid>
-        <HorizontalGrid columns={{ xs: "1fr", md: "2fr 5fr" }} gap="4">
-          <Box
-            as="section"
-            paddingInlineStart={{ xs: 4, sm: 0 }}
-            paddingInlineEnd={{ xs: 4, sm: 0 }}
-          >
-            <VerticalStack gap="4">
-              <Text as="h3" variant="headingMd">
-                Tracking
-              </Text>
-              <Text as="p" variant="bodyMd">
-                Track sales begining at specified date. Sales prior to this date will not be tracked. Ensure inventory levels are accurate before enabling.
-              </Text>
-            </VerticalStack>
-          </Box>
-          <Card roundedAbove="sm">
-            <VerticalStack gap="4">
-              <Checkbox 
-                label="Enable Tracking" 
-                checked={trackingEnabled}
-                onChange={handleTrackingEnabledChange}
-              />
+      {toastMarkup}
+      <Page
+        divider
+        primaryAction={{
+          content: 'Save Settings',
+          disabled: !isFormModified,
+          loading: isLoading,
+          onAction: () => handleSubmit(),
+        }}
+        secondaryActions={[
+          {
+            content: 'Default',
+            accessibilityLabel: 'Reset settings to default.',
+            onAction: () => alert('Duplicate action'),
+          },
+        ]}
+      >
+        <VerticalStack gap={{ xs: '8', sm: '4' }}>
+          <HorizontalGrid columns={{ xs: '1fr', md: '2fr 5fr' }} gap="4">
+            <Box
+              as="section"
+              paddingInlineStart={{ xs: 4, sm: 0 }}
+              paddingInlineEnd={{ xs: 4, sm: 0 }}
+            >
+              <VerticalStack gap="4">
+                <Text as="h3" variant="headingMd">
+                  Inventory Reorder Levels
+                </Text>
+                <Text as="p" variant="bodyMd">
+                  Products will be flagged when inventory levels fall below
+                  these values.
+                </Text>
+              </VerticalStack>
+            </Box>
+            <Card roundedAbove="sm">
+              <VerticalStack gap="4">
+                <TextField
+                  label="Reorder level"
+                  type="number"
+                  value={reorderLevel}
+                  onChange={handleReorderLevelChange}
+                  autoComplete="off"
+                />
+              </VerticalStack>
+            </Card>
+          </HorizontalGrid>
+          <HorizontalGrid columns={{ xs: '1fr', md: '2fr 5fr' }} gap="4">
+            <Box
+              as="section"
+              paddingInlineStart={{ xs: 4, sm: 0 }}
+              paddingInlineEnd={{ xs: 4, sm: 0 }}
+            >
+              <VerticalStack gap="4">
+                <Text as="h3" variant="headingMd">
+                  Tracking
+                </Text>
+                <Text as="p" variant="bodyMd">
+                  Track sales begining at specified date. Sales prior to this
+                  date will not be tracked. Ensure inventory levels are accurate
+                  before enabling.
+                </Text>
+              </VerticalStack>
+            </Box>
+            <Card roundedAbove="sm">
+              <VerticalStack gap="4">
+                <Checkbox
+                  label="Enable Tracking"
+                  checked={trackingEnabled}
+                  onChange={handleTrackingEnabledChange}
+                />
                 <Popover
                   active={visible}
                   autofocusTarget="none"
@@ -240,7 +251,7 @@ export default function AppSettings() {
                   activator={
                     <TextField
                       role="combobox"
-                      label={"Start date"}
+                      label={'Start date'}
                       prefix={<Icon source={CalendarMinor} />}
                       value={formattedValue}
                       onFocus={() => setVisible(true)}
@@ -259,33 +270,33 @@ export default function AppSettings() {
                     />
                   </Card>
                 </Popover>
-            </VerticalStack>
-          </Card>
-        </HorizontalGrid>
-        <HorizontalGrid columns={{ xs: "1fr", md: "2fr 5fr" }} gap="4">
-          <Box
-            as="section"
-            paddingInlineStart={{ xs: 4, sm: 0 }}
-            paddingInlineEnd={{ xs: 4, sm: 0 }}
-          >
-            <VerticalStack gap="4">
-              <Text as="h3" variant="headingMd">
-                Notifications
-              </Text>
-              <Text as="p" variant="bodyMd">
-                Email notifications sent to suppliers when a PO is placed.
-              </Text>
-            </VerticalStack>
-          </Box>
-          <Card roundedAbove="sm">
-            <VerticalStack gap="4">
-              <Checkbox label="Notify suppliers when PO is created" />
-              <Checkbox label="CC store owner for all notifications" />
-            </VerticalStack>
-          </Card>
-        </HorizontalGrid>
-      </VerticalStack>
-    </Page>
+              </VerticalStack>
+            </Card>
+          </HorizontalGrid>
+          <HorizontalGrid columns={{ xs: '1fr', md: '2fr 5fr' }} gap="4">
+            <Box
+              as="section"
+              paddingInlineStart={{ xs: 4, sm: 0 }}
+              paddingInlineEnd={{ xs: 4, sm: 0 }}
+            >
+              <VerticalStack gap="4">
+                <Text as="h3" variant="headingMd">
+                  Notifications
+                </Text>
+                <Text as="p" variant="bodyMd">
+                  Email notifications sent to suppliers when a PO is placed.
+                </Text>
+              </VerticalStack>
+            </Box>
+            <Card roundedAbove="sm">
+              <VerticalStack gap="4">
+                <Checkbox label="Notify suppliers when PO is created" />
+                <Checkbox label="CC store owner for all notifications" />
+              </VerticalStack>
+            </Card>
+          </HorizontalGrid>
+        </VerticalStack>
+      </Page>
     </Frame>
-  )
+  );
 }

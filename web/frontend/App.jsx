@@ -1,17 +1,17 @@
-import { BrowserRouter } from "react-router-dom";
-import { NavigationMenu } from "@shopify/app-bridge-react";
-import Routes from "./Routes";
+import { BrowserRouter } from 'react-router-dom';
+import { NavigationMenu } from '@shopify/app-bridge-react';
+import Routes from './Routes';
 
 import {
   AppBridgeProvider,
   QueryProvider,
   PolarisProvider,
-} from "./components";
+} from './components';
 
 export default function App() {
   // Any .tsx or .jsx files in /pages will become a route
   // See documentation for <Routes /> for more info
-  const pages = import.meta.globEager("./pages/**/!(*.test.[jt]sx)*.([jt]sx)");
+  const pages = import.meta.globEager('./pages/**/!(*.test.[jt]sx)*.([jt]sx)');
 
   return (
     <PolarisProvider>
@@ -21,20 +21,20 @@ export default function App() {
             <NavigationMenu
               navigationLinks={[
                 {
-                  label: "Inventory Levels",
-                  destination: "/inventory",
+                  label: 'Inventory Levels',
+                  destination: '/inventory',
                 },
                 {
-                  label: "Purchase Orders",
-                  destination: "/orders",
+                  label: 'Purchase Orders',
+                  destination: '/orders',
                 },
                 {
-                  label: "Suppliers",
-                  destination: "/manageusers",
+                  label: 'Suppliers',
+                  destination: '/manageusers',
                 },
                 {
-                  label: "Settings",
-                  destination: "/appsettings",
+                  label: 'Settings',
+                  destination: '/appsettings',
                 },
               ]}
             />

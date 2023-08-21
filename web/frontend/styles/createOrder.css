@@ -1,0 +1,6 @@
+.product-list-item {
+  border: 1px solid var(--p-color-border-interactive-disabled) !important;
+  padding: 9px !important;
+  margin: 5px !important;
+  border-radius: 5px !important;
+}

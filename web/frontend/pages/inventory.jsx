@@ -17,7 +17,8 @@ import usePagination from '../hooks/usePagination';
 import Paginator from '../components/UI/Paginator';
 import ContextualSaveBar from '../components/UI/ContextualSaveBar';
 
-const isEqual = (object1, object2) => JSON.stringify(object1) === JSON.stringify(object2);
+const isEqual = (object1, object2) =>
+  JSON.stringify(object1) === JSON.stringify(object2);
 
 const tableHeadings = [
   { title: 'Image' },
@@ -116,7 +117,7 @@ function ProductsList() {
       const updatedProducts = productsCopy.map(upadateProductsOnHand);
       setProducts(updatedProducts);
     },
-    [products],
+    [products]
   );
 
   // Handler to save the edited OnHand value to the backend
@@ -173,7 +174,9 @@ function ProductsList() {
         onAction: () => {
           navigate('/createorder', {
             state: {
-              selectedProducts: products.filter((p) => selectedResources.includes(p.id)),
+              selectedProducts: products.filter((p) =>
+                selectedResources.includes(p.id)
+              ),
               previousPath: '/inventory',
             },
           });

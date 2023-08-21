@@ -1,7 +1,7 @@
-import { useState } from "react";
-import { Card, TextContainer, Text } from "@shopify/polaris";
-import { Toast } from "@shopify/app-bridge-react";
-import { useAppQuery, useAuthenticatedFetch } from "../hooks";
+import { useState } from 'react';
+import { Card, TextContainer, Text } from '@shopify/polaris';
+import { Toast } from '@shopify/app-bridge-react';
+import { useAppQuery, useAuthenticatedFetch } from '../hooks';
 
 export function ProductsCard() {
   const emptyToastProps = { content: null };
@@ -15,7 +15,7 @@ export function ProductsCard() {
     isLoading: isLoadingCount,
     isRefetching: isRefetchingCount,
   } = useAppQuery({
-    url: "/api/products/count",
+    url: '/api/products/count',
     reactQueryOptions: {
       onSuccess: () => {
         setIsLoading(false);
@@ -29,15 +29,15 @@ export function ProductsCard() {
 
   const handlePopulate = async () => {
     setIsLoading(true);
-    const response = await fetch("/api/products/create");
+    const response = await fetch('/api/products/create');
 
     if (response.ok) {
       await refetchProductCount();
-      setToastProps({ content: "5 products created!" });
+      setToastProps({ content: '5 products created!' });
     } else {
       setIsLoading(false);
       setToastProps({
-        content: "There was an error creating products",
+        content: 'There was an error creating products',
         error: true,
       });
     }
@@ -50,7 +50,7 @@ export function ProductsCard() {
         title="Product Counter"
         sectioned
         primaryFooterAction={{
-          content: "Populate 5 products",
+          content: 'Populate 5 products',
           onAction: handlePopulate,
           loading: isLoading,
         }}
@@ -63,7 +63,7 @@ export function ProductsCard() {
           <Text as="h4" variant="headingMd">
             TOTAL PRODUCTS
             <Text variant="bodyMd" as="p" fontWeight="semibold">
-              {isLoadingCount ? "-" : data.count}
+              {isLoadingCount ? '-' : data.count}
             </Text>
           </Text>
         </TextContainer>
