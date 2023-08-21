@@ -55,6 +55,7 @@ export const getProducts = async (req, res) => {
       attributes: ['startDate'],
       raw: true,
     });
+    console.log(appSettingsResult)
     if (appSettingsResult) {
       orderFetchDate = appSettingsResult.startDate;
     }
@@ -178,12 +179,17 @@ export const getProducts = async (req, res) => {
 
         return {
           id: variant.id,
+          title: `${product.title} - ${variant.title}`,
           sku: variant.sku,
           onHand: onHand,
           incomingInventory: incoming,
           pendingOrders: pending,
           netInventory: onHand + incoming - pending,
-          imageUrl: variantImage ? variantImage.src : null,
+          imageUrl: variantImage
+            ? variantImage.src
+            : product.images[0]?.src
+            ? product.images[0]?.src
+            : product?.image?.src,
         };
       });
     })

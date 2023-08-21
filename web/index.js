@@ -24,6 +24,7 @@ import './models/order.js';
 import './models/orderItem.js';
 import './models/user.js';
 import './models/associations.js';
+import ErrorHandler from './middlewares/errorHandler.js';
 
 // TODO: REMOVE alter:true FROM BELOW BEFORE PUSHING TO PRODUCTION
 db.sync(/*{ alter: true }*/)
@@ -132,6 +133,7 @@ app.get("/api/products/create", async (_req, res) => {
 
 app.use(shopify.cspHeaders());
 app.use(serveStatic(STATIC_PATH, { index: false }));
+app.use(ErrorHandler);
 
 app.use("/*", shopify.ensureInstalledOnShop(), async (_req, res, _next) => {
   return res

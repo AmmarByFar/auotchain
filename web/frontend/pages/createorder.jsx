@@ -12,11 +12,15 @@ import {
   LegacyCard,
   Layout,
 } from '@shopify/polaris';
-import CreateOrderProductList from '../components/CreateOrder/CreateOrderProductList';
+import CreateOrderProductList from '../components/CreateOrderProductList';
 import ShipmentInvoice from '../components/CreateOrder/ShipmentInvoice';
+import { useAuthenticatedFetch } from '@shopify/app-bridge-react';
+import useCreateOrder from '../hooks/useCreateOrder';
 
 const currentDate = new Date();
 export default function CreateOrder() {
+  const fetch = useAuthenticatedFetch();
+  const { createOrder } = useCreateOrder(fetch);
   const navigate = useNavigate();
   const location = useLocation();
   const [selectedProducts, setSelectedProducts] = useState(
@@ -52,7 +56,6 @@ export default function CreateOrder() {
     orderDateYear: orderDate.getFullYear(),
   });
   const orderDateFormattedValue = orderDate.toISOString().slice(0, 10);
-  const orderDatePickerRef = useRef(null);
 
   function handleOrderDateChange({ end: newSelectedDate }) {
     setOrderDate(newSelectedDate);
@@ -63,8 +66,22 @@ export default function CreateOrder() {
     setOrderDateValues({ orderDateMonth: month, orderDateYear: year });
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    const payload = {
+      orderDate: orderDate.toISOString(),
+      orderNotes: orderData.deliveryNotes,
+      supplierID: orderData.supplierID,
+      warehouseManagerID: orderData.warehouseManagerID,
+      items: selectedProducts.map((product) => ({
+        SKU: product.sku,
+        quantity: product.orderAmount,
+      })),
+    };
+
     // Call API to create the order, shipment, and invoice using orderData
+    const result = await createOrder(payload);
+
+    console.log('order create result', result);
   };
 
   return (
@@ -77,7 +94,7 @@ export default function CreateOrder() {
       title="New Purchase Order"
       primaryAction={{
         content: 'Create Purchase Order',
-        onAction: () => {},
+        onAction: handleSubmit,
       }}
       secondaryActions={[
         {
@@ -141,7 +158,7 @@ export default function CreateOrder() {
                   />
                 }
               >
-                <Card ref={orderDatePickerRef}>
+                <Card>
                   <DatePicker
                     month={orderDateMonth}
                     year={orderDateYear}
