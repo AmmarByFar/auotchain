@@ -103,6 +103,7 @@ app.get('/api/appsettings', getSettings);
 app.post('/api/appsettings', postSettings);
 
 app.get('/api/orders', getOrders);
+app.post('/api/orders', createOrder);
 
 app.get("/api/products/count", async (_req, res) => {
   const countData = await shopify.api.rest.Product.count({
