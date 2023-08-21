@@ -6,7 +6,7 @@ import {
   IndexTable,
   Text,
   useIndexResourceState,
-  AlphaCard,
+  Card,
   EmptySearchResult,
   TextField,
 } from '@shopify/polaris';
@@ -196,7 +196,7 @@ function ProductsList() {
         },
       ]}
     >
-      <AlphaCard padding={1}>
+      <Card padding={1}>
         <IndexTable
           loading={isLoadingState}
           itemCount={products.length}
@@ -259,7 +259,7 @@ function ProductsList() {
             disCardAction={handleDiscardAction}
           />
         )}
-      </AlphaCard>
+      </Card>
     </Page>
   );
 }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Page, IndexTable, Text, LegacyCard, useIndexResourceState, AlphaCard } from '@shopify/polaris';
+import { Page, IndexTable, Text, LegacyCard, useIndexResourceState, Card } from '@shopify/polaris';
 import { useAppQuery, useAuthenticatedFetch } from "../hooks";
 import { ChecklistMajor, ArchiveMinor, DeleteMinor } from '@shopify/polaris-icons';
 
@@ -58,7 +58,7 @@ const OrdersList = () => {
       ]}>
       {loading 
         ? <div>Loading...</div>
-        : <AlphaCard padding={0}>
+        : <Card padding={0}>
             <IndexTable
               itemCount={orders.length}
               selectedItemsCount={
@@ -94,7 +94,7 @@ const OrdersList = () => {
                 </IndexTable.Row>
               ))}
             </IndexTable>
-          </AlphaCard>
+          </Card>
       }
     </Page>
   );  

@@ -1,10 +1,9 @@
 import {
-  AlphaCard,
+  Card,
   Page,
   Layout,
   TextContainer,
   Image,
-  Stack,
   Link,
   Text,
 } from "@shopify/polaris";
@@ -20,8 +19,8 @@ export default function HomePage() {
       <TitleBar title="App name" primaryAction={null} />
       <Layout>
         <Layout.Section>
-          <AlphaCard sectioned>
-            <Stack
+          <Card sectioned>
+            {/* <Stack
               wrap={false}
               spacing="extraTight"
               distribution="trailing"
@@ -76,8 +75,8 @@ export default function HomePage() {
                   />
                 </div>
               </Stack.Item>
-            </Stack>
-          </AlphaCard>
+            </Stack> */}
+          </Card>
         </Layout.Section>
         <Layout.Section>
           <ProductsCard />
