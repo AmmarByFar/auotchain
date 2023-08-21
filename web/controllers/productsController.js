@@ -1,5 +1,6 @@
 import Product from "../models/product.js"
 import Order from "../models/order.js"
+import OrderItem from "../models/orderItem.js"
 import ShopData from "../models/shopData.js"
 import shopify from "../shopify.js"
 import AppSettings from "../models/appSettings.js"
@@ -113,22 +114,39 @@ export const getProducts = async (req, res) => {
     }
 
     // Calculate Incoming Inventory
-    const incomingInventoryList = await Order.findAll({
-        where: { 
-            shopDomain, 
-            orderStatus: "shipped" 
-        },
-        attributes: ['sku', [Sequelize.fn('SUM', Sequelize.col('orderAmount')), 'totalIncoming']],
-        group: ['sku'],
+    // const incomingInventoryList = await OrderItem.findAll({
+    //     include: [{
+    //         model: Order,
+    //         where: { shopDomain, orderStatus: "shipped" }
+    //     }],
+    //     attributes: ['sku', [Sequelize.fn('SUM', Sequelize.col('quantity')), 'totalIncoming']],
+    //     group: ['OrderItem.sku'],
+    //     raw: true
+    // });    
+    
+    const incomingInventoryList = await OrderItem.findAll({
+        include: [{
+            model: Order,
+            where: { shopDomain, orderStatus: "shipped" },
+            attributes: []
+        }],
+        attributes: [
+            'SKU',
+            [Sequelize.fn('SUM', Sequelize.col('OrderItem.quantity')), 'totalIncoming']
+        ],
+        group: ['OrderItem.SKU'],
         raw: true
     });
 
+    // console.log("Incoming Inventory List:");
+    // console.log(JSON.stringify(incomingInventoryList, null, 2));
+    
     const combinedProducts = shopifyProducts.data.map(product => {
         return product.variants.map(variant => {
             const localProduct = localProducts.find(lp => lp.sku === variant.sku || lp.productId === product.id);
             const onHand = (localProduct ? localProduct.OnHand : 0) + (cancelledOrderQuantities[variant.sku] || 0);
     
-            const incomingInventory = incomingInventoryList.find(ii => ii.sku === variant.sku);
+            const incomingInventory = incomingInventoryList.find(ii => ii.SKU === variant.sku);
             const incoming = incomingInventory ? incomingInventory.totalIncoming : 0;
     
             const pending = pendingOrderQuantities[variant.sku] || 0;

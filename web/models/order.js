@@ -1,6 +1,7 @@
 import Sequelize from 'sequelize';
 import db from '../config/database.js';
 import User from './user.js'; 
+import OrderItem from './orderItem.js'
 
 const Order = db.define('Order', {
   id: {
@@ -12,18 +13,6 @@ const Order = db.define('Order', {
   shopDomain: {
     type: Sequelize.STRING,
     allowNull: false
-  },
-  productID: {
-    type: Sequelize.INTEGER,
-    allowNull: true
-  },
-  SKU: {
-    type: Sequelize.STRING,
-    allowNull: false
-  },
-  orderAmount: {
-    type: Sequelize.INTEGER,
-    allowNull: true
   },
   supplierID: {
     type: Sequelize.INTEGER,
@@ -46,8 +35,5 @@ const Order = db.define('Order', {
     allowNull: true
   }
 });
-
-Order.belongsTo(User, {as: 'Supplier', foreignKey: 'supplierID'});
-Order.belongsTo(User, {as: 'WarehouseManager', foreignKey: 'warehouseManagerID'});
 
 export default Order;

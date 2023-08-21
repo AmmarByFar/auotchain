@@ -20,6 +20,11 @@ import { getSettings, postSettings } from './controllers/settingsController.js';
 import { getProducts, updateProducts } from './controllers/productsController.js'
 import { getOrders, updateOrder, createOrder } from './controllers/ordersController.js';
 
+import './models/order.js';
+import './models/orderItem.js';
+import './models/user.js';
+import './models/associations.js';
+
 // TODO: REMOVE alter:true FROM BELOW BEFORE PUSHING TO PRODUCTION
 db.sync(/*{ alter: true }*/)
   .then(() => console.log("All models were synchronized successfully."))
