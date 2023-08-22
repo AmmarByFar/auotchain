@@ -1,6 +1,7 @@
 import Order from "../models/order.js"
 import OrderItem from "../models/orderItem.js";
 import User from "../models/user.js"
+import Invoice from "../models/invoice.js"
 import Shipment from "../models/shipment.js"
 import shopify from "../shopify.js"
 import Sequelize from 'sequelize';
@@ -50,6 +51,51 @@ export const getOrders = async (req, res) => {
   }
 };
 
+export const getOrder = async (req, res) => {
+  try {
+      const { orderId } = req.params;
+      
+      const order = await Order.findOne({
+          where: { id: orderId },
+          include: [
+              {
+                  model: User,
+                  as: 'Supplier',
+                  attributes: ['username']
+              },
+              {
+                  model: User,
+                  as: 'WarehouseManager',
+                  attributes: ['username']
+              },
+              {
+                  model: OrderItem,
+                  attributes: ['SKU', 'quantity']
+              },
+              {
+                  model: Shipment,
+                  attributes: ['amount', 'tracking', 'status', 'notes']
+              },
+              {
+                  model: Invoice,
+                  attributes: ['amount', 'date', 'filePath']
+              }
+          ]
+      });
+
+      if (!order) {
+          return res.status(404).json({ message: 'Order not found' });
+      }
+
+      res.json(order);
+
+  } catch (error) {
+      console.error('Failed to fetch the order:', error);
+      res.status(500).json({ message: 'Failed to fetch the order' });
+  }
+};
+
+
 
 export const updateOrder = async(req, res) =>{
     try{
@@ -72,7 +118,8 @@ export const createOrder = async (req, res) => {
         supplierID, 
         warehouseManagerID,
         items, // Array of {SKU, quantity}
-        shipments // Array of {amount, tracking, status, notes}
+        shipments, // Array of {amount, tracking, status, notes}
+        invoices  // Array of {amount, date, filePath}
     } = req.body;
 
     const result = await db.transaction(async (t) => {
@@ -86,7 +133,6 @@ export const createOrder = async (req, res) => {
           orderStatus: "Pending"
       }, { transaction: t });
 
-      // Create Order Items
       const orderItems = items.map(item => ({
           orderID: newOrder.id,
           SKU: item.SKU,
@@ -95,7 +141,6 @@ export const createOrder = async (req, res) => {
 
       await OrderItem.bulkCreate(orderItems, { transaction: t });
 
-      // Create Shipments for the Order
       const orderShipments = shipments.map(shipment => ({
           orderID: newOrder.id,
           amount: shipment.amount,
@@ -105,6 +150,15 @@ export const createOrder = async (req, res) => {
       }));
 
       await Shipment.bulkCreate(orderShipments, { transaction: t });
+
+      const orderInvoices = invoices.map(invoice => ({
+          orderID: newOrder.id,
+          amount: invoice.amount,
+          date: invoice.date,
+          filePath: invoice.filePath
+      }));
+
+      await Invoice.bulkCreate(orderInvoices, { transaction: t });
 
       return newOrder; 
     });

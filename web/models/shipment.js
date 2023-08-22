@@ -16,7 +16,7 @@ const Shipment = db.define('Shipment', {
       key: 'id'
     }
   },
-  amount: {
+  unitCount: {
     type: Sequelize.INTEGER,
     allowNull: true
   },

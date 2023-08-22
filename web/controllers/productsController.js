@@ -114,16 +114,6 @@ export const getProducts = async (req, res) => {
     }
 
     // Calculate Incoming Inventory
-    // const incomingInventoryList = await OrderItem.findAll({
-    //     include: [{
-    //         model: Order,
-    //         where: { shopDomain, orderStatus: "shipped" }
-    //     }],
-    //     attributes: ['sku', [Sequelize.fn('SUM', Sequelize.col('quantity')), 'totalIncoming']],
-    //     group: ['OrderItem.sku'],
-    //     raw: true
-    // });    
-    
     const incomingInventoryList = await OrderItem.findAll({
         include: [{
             model: Order,

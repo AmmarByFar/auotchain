@@ -16,7 +16,7 @@ const Invoice = db.define('Invoice', {
       key: 'id'
     }
   },
-  amount: {
+  totalCost: {
     type: Sequelize.DECIMAL,
     allowNull: false
   },

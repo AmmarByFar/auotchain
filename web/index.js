@@ -18,7 +18,7 @@ import { getUsers, createUser }  from './controllers/userController.js';
 import { handleOrderCreate } from './controllers/webhookController.js';
 import { getSettings, postSettings } from './controllers/settingsController.js';
 import { getProducts, updateProducts } from './controllers/productsController.js'
-import { getOrders, updateOrder, createOrder } from './controllers/ordersController.js';
+import { getOrders, updateOrder, createOrder, getOrder } from './controllers/ordersController.js';
 
 import './models/order.js';
 import './models/orderItem.js';
@@ -105,6 +105,7 @@ app.get('/api/appsettings', getSettings);
 app.post('/api/appsettings', postSettings);
 
 app.get('/api/orders', getOrders);
+app.get('/api/order', getOrder);
 app.post('/api/orders', createOrder);
 
 app.get("/api/products/count", async (_req, res) => {
