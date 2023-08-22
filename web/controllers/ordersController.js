@@ -112,14 +112,18 @@ export const createOrder = async (req, res) => {
   try {
     const shopDomain = res.locals.shopify.session.shop;
 
+    console.log("Files: ", req.files);
+    const filePaths = req.files.map(file => file.path);
+    console.log("File paths: ", filePaths);
+
     const { 
         orderDate, 
         orderNotes, 
         supplierID, 
         warehouseManagerID,
         items, // Array of {SKU, quantity}
-        shipments, // Array of {amount, tracking, status, notes}
-        invoices  // Array of {amount, date, filePath}
+        shipments, // Array of {unitCount, tracking, status, notes}
+        invoices  // Array of {totalCost, date, filePath}
     } = req.body;
 
     const result = await db.transaction(async (t) => {
@@ -151,13 +155,13 @@ export const createOrder = async (req, res) => {
 
       await Shipment.bulkCreate(orderShipments, { transaction: t });
 
-      const orderInvoices = invoices.map(invoice => ({
-          orderID: newOrder.id,
-          amount: invoice.amount,
-          date: invoice.date,
-          filePath: invoice.filePath
+      const orderInvoices = invoices.map((invoice, index) => ({
+        orderID: newOrder.id,
+        amount: invoice.amount,
+        date: invoice.date,
+        filePath: filePaths[index] || null
       }));
-
+    
       await Invoice.bulkCreate(orderInvoices, { transaction: t });
 
       return newOrder; 

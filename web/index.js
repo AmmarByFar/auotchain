@@ -20,6 +20,9 @@ import { getSettings, postSettings } from './controllers/settingsController.js';
 import { getProducts, updateProducts } from './controllers/productsController.js'
 import { getOrders, updateOrder, createOrder, getOrder } from './controllers/ordersController.js';
 
+import multer from 'multer';
+import { MulterAzureStorage } from 'multer-azure-blob-storage';
+
 import './models/order.js';
 import './models/orderItem.js';
 import './models/user.js';
@@ -28,7 +31,7 @@ import './models/shipment.js'
 import './models/associations.js';
 
 // TODO: REMOVE alter:true FROM BELOW BEFORE PUSHING TO PRODUCTION
-db.sync(/*{ alter: true }*/)
+db.sync({ alter: true })
   .then(() => console.log("All models were synchronized successfully."))
   .catch((error) => console.log("An error occurred:", error));
 
@@ -36,6 +39,19 @@ const PORT = parseInt(
   process.env.BACKEND_PORT || process.env.PORT || "3000",
   10
 );
+
+const azureStorage = new MulterAzureStorage({
+  connectionString: process.env.AZURE_CONNECTION_STRING,
+  accessKey: process.env.AZURE_KEY,
+  accountName: process.env.AZURE_ACCOUNT,
+  containerName: 'invoices',
+  containerAccessLevel: 'blob',
+  urlExpirationTime: 60
+});
+
+const upload = multer({
+  storage: azureStorage
+});
 
 const STATIC_PATH =
   process.env.NODE_ENV === "production"
@@ -106,7 +122,7 @@ app.post('/api/appsettings', postSettings);
 
 app.get('/api/orders', getOrders);
 app.get('/api/order', getOrder);
-app.post('/api/orders', createOrder);
+app.post('/api/orders', upload.array("invoiceFiles", 15), createOrder);
 
 app.get("/api/products/count", async (_req, res) => {
   const countData = await shopify.api.rest.Product.count({
