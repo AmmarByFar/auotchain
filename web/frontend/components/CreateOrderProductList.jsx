@@ -8,28 +8,14 @@ import {
   Box,
   CalloutCard,
   LegacyCard,
+  Spinner,
 } from '@shopify/polaris';
 import { CancelMinor, DeleteMinor } from '@shopify/polaris-icons';
 import { ResourcePicker } from '@shopify/app-bridge-react';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
+import { useAppQuery } from '../hooks';
+import CustomResourcePicker from './CustomResourcePicker/CustomResourcePicker';
 
-const mapProductsFromResourcePicker = (products) => {
-  return products.selection
-    .map((product) => {
-      return product.variants.map((variant) => {
-        return {
-          id: variant.id.split('gid://shopify/ProductVariant/')[1],
-          sku: variant.sku,
-          imageUrl: variant.image
-            ? variant.image
-            : product.images[0].originalSrc,
-          title: product.title + ' - ' + variant.title,
-          orderAmount: 1,
-        };
-      });
-    })
-    .flat();
-};
 const CreateOrderProductList = ({ products, setProducts }) => {
   const [resourcePickerOpen, setResourcePickerOpen] = useState(false);
   const handleOrderAmountChange = (index, value) => {
@@ -39,10 +25,11 @@ const CreateOrderProductList = ({ products, setProducts }) => {
   };
 
   const handleRemoveProduct = (id) => {
-    console.log('removing,', id);
     const newProducts = [...products].filter((p) => p.id !== id);
     setProducts(newProducts);
   };
+
+  const toggleModal = () => setResourcePickerOpen((open) => !open);
 
   const emptyProductComponent = products.length ? null : (
     <Box as="div">
@@ -60,21 +47,6 @@ const CreateOrderProductList = ({ products, setProducts }) => {
       </CalloutCard>
     </Box>
   );
-  const resourcePickerComponent = (
-    <ResourcePicker
-      resourceType="Product"
-      showVariants={true}
-      open={resourcePickerOpen}
-      selectMultiple={true}
-      onSelection={(selection) => {
-        setProducts(mapProductsFromResourcePicker(selection));
-        setResourcePickerOpen(false);
-      }}
-      onCancel={() => {
-        setResourcePickerOpen(false);
-      }}
-    />
-  );
 
   let prodcutListComponent = !products.length ? null : (
     <LegacyCard
@@ -87,8 +59,8 @@ const CreateOrderProductList = ({ products, setProducts }) => {
         },
       ]}
     >
-      {products.map((product, index) => (
-        <div className="product-list-item">
+      {products?.map((product, index) => (
+        <div className="product-list-item" key={product.title}>
           <HorizontalStack
             wrap={false}
             gap="4"
@@ -116,18 +88,20 @@ const CreateOrderProductList = ({ products, setProducts }) => {
                 {`SKU: ${product.sku}`}
               </Text>
             </div>
+            <Text>Available: {product.onHand}</Text>
             <TextField
               placeholder="Order Amount"
               type="number"
               value={product.orderAmount}
               onChange={(value) => handleOrderAmountChange(index, value)}
+              inputMode="numeric"
             />
             <Button
               destructive
               onClick={() => {
-                console.log('remove product');
                 handleRemoveProduct(product.id);
               }}
+              size="micro"
             >
               <Icon source={DeleteMinor} color="critical" />
             </Button>
@@ -137,13 +111,16 @@ const CreateOrderProductList = ({ products, setProducts }) => {
     </LegacyCard>
   );
 
-  console.log({ resourcePickerOpen });
-
   return (
     <>
       {prodcutListComponent}
-      {resourcePickerComponent}
       {emptyProductComponent}
+      <CustomResourcePicker
+        selectedProducts={products}
+        closeModal={toggleModal}
+        open={resourcePickerOpen}
+        setSelectedProducts={setProducts}
+      />
     </>
   );
 };

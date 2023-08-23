@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import '../styles/createOrder.css';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { CancelMajor, CalendarMinor } from '@shopify/polaris-icons';
@@ -11,6 +11,7 @@ import {
   Card,
   LegacyCard,
   Layout,
+  Frame,
 } from '@shopify/polaris';
 import CreateOrderProductList from '../components/CreateOrderProductList';
 import ShipmentInvoice from '../components/CreateOrder/ShipmentInvoice';
@@ -26,9 +27,6 @@ export default function CreateOrder() {
   const [selectedProducts, setSelectedProducts] = useState(
     location.state?.selectedProducts || []
   );
-
-  const isAllFieldDisabled = !selectedProducts.length;
-
   const [orderData, setOrderData] = useState({
     shopDomain: '',
     productID: '',
@@ -47,14 +45,16 @@ export default function CreateOrder() {
     invoiceNumber: '',
     invoiceDate: currentDate,
     filePath: '',
+    shipments: [],
+    invoices: []
   });
-
   const [orderDateVisible, setOrderDateVisible] = useState(false);
   const [orderDate, setOrderDate] = useState(currentDate);
   const [{ orderDateMonth, orderDateYear }, setOrderDateValues] = useState({
     orderDateMonth: orderDate.getMonth(),
     orderDateYear: orderDate.getFullYear(),
   });
+  const isAllFieldDisabled = !selectedProducts.length;
   const orderDateFormattedValue = orderDate.toISOString().slice(0, 10);
 
   function handleOrderDateChange({ end: newSelectedDate }) {
@@ -78,11 +78,14 @@ export default function CreateOrder() {
       })),
     };
 
-    // Call API to create the order, shipment, and invoice using orderData
-    const result = await createOrder(payload);
+    console.log(payload)
 
-    console.log('order create result', result);
+    // Call API to create the order, shipment, and invoice using orderData
+    // const result = await createOrder(payload);
+
+    // console.log('order create result', result);
   };
+
 
   return (
     <Page
@@ -105,89 +108,93 @@ export default function CreateOrder() {
         },
       ]}
     >
-      <Layout>
-        <Layout.Section>
-          <CreateOrderProductList
-            products={selectedProducts}
-            setProducts={setSelectedProducts}
-            key="CreateOrderProductList"
-          />
-          <div style={{ marginTop: '20px' }}>
-            <LegacyCard sectioned title="Order Information" padding={5}>
-              <TextField
-                disabled={isAllFieldDisabled}
-                label="Supplier"
-                value={orderData.supplierID}
-                onChange={(value) =>
-                  setOrderData((prevState) => ({
-                    ...prevState,
-                    supplierID: value,
-                  }))
-                }
-              />
-              <TextField
-                disabled={isAllFieldDisabled}
-                label="Warehouse Manager"
-                value={orderData.warehouseManagerID}
-                onChange={(value) =>
-                  setOrderData((prevState) => ({
-                    ...prevState,
-                    warehouseManagerID: value,
-                  }))
-                }
-              />
-              <Popover
-                active={orderDateVisible}
-                autofocusTarget="none"
-                preferredAlignment="left"
-                fullWidth
-                preferInputActivator={false}
-                preferredPosition="below"
-                preventCloseOnChildOverlayClick
-                onClose={() => setOrderDateVisible(false)}
-                activator={
-                  <TextField
-                    disabled={isAllFieldDisabled}
-                    role="combobox"
-                    label="Order Date"
-                    prefix={<Icon source={CalendarMinor} />}
-                    value={orderDateFormattedValue}
-                    onFocus={() => setOrderDateVisible(true)}
-                    onChange={() => {}}
-                    autoComplete="off"
-                  />
-                }
-              >
-                <Card>
-                  <DatePicker
-                    month={orderDateMonth}
-                    year={orderDateYear}
-                    selected={orderDate}
-                    onMonthChange={(month, year) =>
-                      handleOrderMonthChange(month, year)
-                    }
-                    onChange={(date) => handleOrderDateChange(date)}
-                  />
-                </Card>
-              </Popover>
-              <TextField
-                disabled={isAllFieldDisabled}
-                label="Order Notes"
-                value={orderData.deliveryNotes}
-                onChange={(value) =>
-                  setOrderData((prevState) => ({
-                    ...prevState,
-                    deliveryNotes: value,
-                  }))
-                }
-              />
-            </LegacyCard>
-          </div>
-        </Layout.Section>
-        <Layout.Section oneThird>
-          <ShipmentInvoice orderData={orderData} setOrderData={setOrderData} />
-        </Layout.Section>
-      </Layout>
+      <Frame>
+        <Layout>
+          <Layout.Section>
+            <CreateOrderProductList
+              products={selectedProducts}
+              setProducts={setSelectedProducts}
+            />
+            <div style={{ marginTop: '20px' }}>
+              <LegacyCard sectioned title="Order Information" padding={5}>
+                <TextField
+                  disabled={isAllFieldDisabled}
+                  label="Supplier"
+                  value={orderData.supplierID}
+                  onChange={(value) =>
+                    setOrderData((prevState) => ({
+                      ...prevState,
+                      supplierID: value,
+                    }))
+                  }
+                />
+                <TextField
+                  disabled={isAllFieldDisabled}
+                  label="Warehouse Manager"
+                  value={orderData.warehouseManagerID}
+                  onChange={(value) =>
+                    setOrderData((prevState) => ({
+                      ...prevState,
+                      warehouseManagerID: value,
+                    }))
+                  }
+                />
+                <Popover
+                  active={orderDateVisible}
+                  autofocusTarget="none"
+                  preferredAlignment="left"
+                  fullWidth
+                  preferInputActivator={false}
+                  preferredPosition="below"
+                  preventCloseOnChildOverlayClick
+                  onClose={() => setOrderDateVisible(false)}
+                  activator={
+                    <TextField
+                      disabled={isAllFieldDisabled}
+                      role="combobox"
+                      label="Order Date"
+                      prefix={<Icon source={CalendarMinor} />}
+                      value={orderDateFormattedValue}
+                      onFocus={() => setOrderDateVisible(true)}
+                      onChange={() => {}}
+                      autoComplete="off"
+                    />
+                  }
+                >
+                  <Card>
+                    <DatePicker
+                      month={orderDateMonth}
+                      year={orderDateYear}
+                      selected={orderDate}
+                      onMonthChange={(month, year) =>
+                        handleOrderMonthChange(month, year)
+                      }
+                      onChange={(date) => handleOrderDateChange(date)}
+                    />
+                  </Card>
+                </Popover>
+                <TextField
+                  disabled={isAllFieldDisabled}
+                  label="Order Notes"
+                  value={orderData.deliveryNotes}
+                  onChange={(value) =>
+                    setOrderData((prevState) => ({
+                      ...prevState,
+                      deliveryNotes: value,
+                    }))
+                  }
+                />
+              </LegacyCard>
+            </div>
+          </Layout.Section>
+          <Layout.Section oneThird>
+            <ShipmentInvoice
+              orderData={orderData}
+              setOrderData={setOrderData}
+            />
+          </Layout.Section>
+        </Layout>
+      </Frame>
     </Page>
   );
 }

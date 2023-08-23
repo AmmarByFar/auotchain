@@ -4,3 +4,23 @@
   margin: 5px !important;
   border-radius: 5px !important;
 }
+
+/* .Polaris-ResourceItem.Polaris-ResourceItem--selectable.Polaris-ResourceItem--selected.Polaris-ResourceItem--selectMode {
+    width: 100%;
+} */
+
+.Polaris-ResourceItem__ItemWrapper {
+    width: 100%;
+}
+
+li.Polaris-ResourceItem__ListItem {
+    height: 64px;
+    box-shadow: none;
+}
+
+li.Polaris-List__Item{
+    box-shadow: none;
+    justify-content: left;
+    list-style: circle;
+    height: auto;
+}

@@ -6,14 +6,20 @@ import {
   Image,
   Link,
   Text,
+  Button,
 } from '@shopify/polaris';
-import { TitleBar } from '@shopify/app-bridge-react';
+import { TitleBar, useAuthenticatedFetch } from '@shopify/app-bridge-react';
 
 import { trophyImage } from '../assets';
 
 import { ProductsCard } from '../components';
 
 export default function HomePage() {
+  const fetch = useAuthenticatedFetch();
+  const getProducts = async()=>{
+    const products = await fetch('/api/products').then(res=> res.json());
+    console.log(products);
+  }
   return (
     <Page narrowWidth>
       <TitleBar title="App name" primaryAction={null} />
@@ -76,6 +82,7 @@ export default function HomePage() {
                 </div>
               </Stack.Item>
             </Stack> */}
+            <Button onClick={getProducts}>Get Products</Button>
           </Card>
         </Layout.Section>
         <Layout.Section>

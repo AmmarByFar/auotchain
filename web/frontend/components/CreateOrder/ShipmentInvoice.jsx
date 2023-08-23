@@ -7,6 +7,9 @@ import {
   Select,
   DropZone,
   Button,
+  Text,
+  Card,
+  List,
 } from '@shopify/polaris';
 import React, { useCallback, useState } from 'react';
 
@@ -16,27 +19,83 @@ const orderStatusOptions = [
   { label: 'Shipped', value: 'shipped' },
   { label: 'Delivered', value: 'delivered' },
 ];
+const initialShipmentData = {
+  unitCount: 0,
+  tracking: '',
+  status: '',
+  notes: '',
+};
+
+const shipmentFields = {
+  unitCount: 'unitCount',
+  tracking: 'tracking',
+  status: 'status',
+  notes: 'notes',
+};
 
 export default function ShipmentInvoice({ orderData, setOrderData }) {
+  console.log('order data from state', orderData);
   const [active, setActive] = useState(false);
-  const handleModalChange = useCallback(() => setActive(!active), [active]);
+  const [shipmentModalActive, setShipmentModalActive] = useState(false);
+  const [invoiceModalActive, setInvoiceModalActive] = useState(false);
 
-  const handleClose = () => {
-    handleModalChange();
+  const [currenctShipmentData, setCurrentShipmentData] =
+    useState(initialShipmentData);
+
+  const [currenctInvoiceData, setCurrenctInvoiceData] = useState({
+    totalCost: 0,
+    date: '',
+    filePath: '',
+  });
+
+  const handleConfirmShipmentData = () => {
+    const orderDataClone = structuredClone(orderData);
+    const currenOrderDataClone = structuredClone(currenctShipmentData);
+    orderDataClone.shipments.push(currenOrderDataClone);
+    console.log({ orderDataClone });
+    setOrderData(orderDataClone);
+    handleClose();
   };
 
-  const activator = <Button onClick={handleModalChange}>Add Shipment</Button>;
+  const handleCancelCurrentShipmentData = () => {
+    setCurrentShipmentData(initialShipmentData);
+  };
+
+  const handleClose = () => {
+    setInvoiceModalActive(false);
+    setShipmentModalActive(false);
+  };
+
+  const shipmentModalActivator = (
+    <Button onClick={() => setShipmentModalActive(true)} size="slim">
+      Add Shipments
+    </Button>
+  );
+  const invoiceModalActivator = (
+    <Button onClick={() => setInvoiceModalActive(true)} size="slim">
+      Add Invoices
+    </Button>
+  );
+
+  const handleCurrentShipmentDataChange = (value, field) => {
+    setCurrentShipmentData((prev) => {
+      return {
+        ...prev,
+        [field]: value,
+      };
+    });
+  };
+
   return (
     <Box>
       <LegacyCard sectioned title="Shipment Information">
         <Modal
-          activator={activator}
-          open={active}
-          onClose={handleClose}
+          activator={shipmentModalActivator}
+          open={shipmentModalActive}
           title="Add Shipment"
           primaryAction={{
             content: 'Add',
-            onAction: handleClose,
+            onAction: handleConfirmShipmentData,
           }}
           secondaryActions={[
             {
@@ -47,46 +106,59 @@ export default function ShipmentInvoice({ orderData, setOrderData }) {
         >
           <Modal.Section>
             <TextField
-              label="Shipment Tracking"
-              value={orderData.shipmentTracking}
+              label="Total Units"
+              type="number"
+              min={0}
+              value={currenctShipmentData.unitCount}
               onChange={(value) =>
-                setOrderData((prevState) => ({
-                  ...prevState,
-                  shipmentTracking: value,
-                }))
+                handleCurrentShipmentDataChange(value, shipmentFields.unitCount)
+              }
+            />
+            <TextField
+              label="Shipment Tracking"
+              value={currenctShipmentData.tracking}
+              onChange={(value) =>
+                handleCurrentShipmentDataChange(value, shipmentFields.tracking)
               }
             />
             <Select
               label="Shipment Status"
               options={orderStatusOptions}
+              value={currenctShipmentData.status}
               onChange={(value) =>
-                setOrderData((prevState) => ({
-                  ...prevState,
-                  shipmentStatus: value,
-                }))
+                handleCurrentShipmentDataChange(value, shipmentFields.status)
               }
-              value={orderData.shipmentStatus}
             />
             <TextField
-              label="Order Amount"
-              type="number"
-              value={orderData.orderAmount}
+              label="Shipment Note"
+              type="text"
+              value={currenctShipmentData.notes}
               onChange={(value) =>
-                setOrderData((prevState) => ({
-                  ...prevState,
-                  orderAmount: value,
-                }))
+                handleCurrentShipmentDataChange(value, shipmentFields.notes)
               }
             />
           </Modal.Section>
         </Modal>
+        {orderData.shipments?.map((shipment) => {
+          return (
+            <div key={shipment.tracking} style={{ margin: '5px 0'}}>
+              <Card padding={2}>
+                <List>
+                  <List.Item>Total Units:{shipment.unitCount}</List.Item>
+                  <List.Item>Tracking: {shipment.tracking}</List.Item>
+                  <List.Item>Status:{shipment.status} </List.Item>
+                  <List.Item>Note:{shipment.notes} </List.Item>
+                </List>
+              </Card>
+            </div>
+          );
+        })}
       </LegacyCard>
       <LegacyCard sectioned title="Invoice Information">
         <Modal
-          activator={activator}
-          open={active}
-          onClose={handleClose}
-          title="Add Shipment"
+          activator={invoiceModalActivator}
+          open={invoiceModalActive}
+          title="Add Invoice"
           primaryAction={{
             content: 'Add',
             onAction: handleClose,
