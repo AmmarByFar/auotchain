@@ -31,7 +31,7 @@ import './models/shipment.js'
 import './models/associations.js';
 
 // TODO: REMOVE alter:true FROM BELOW BEFORE PUSHING TO PRODUCTION
-db.sync({ alter: true })
+db.sync(/*{ alter: true }*/)
   .then(() => console.log("All models were synchronized successfully."))
   .catch((error) => console.log("An error occurred:", error));
 
@@ -113,11 +113,9 @@ app.use("/api/*", shopify.validateAuthenticatedSession());
 app.use(express.json());
 
 app.post('/api/users', createUser);
-
 app.get('/api/users', getUsers);
 
 app.get('/api/appsettings', getSettings);
-
 app.post('/api/appsettings', postSettings);
 
 app.get('/api/orders', getOrders);
@@ -132,7 +130,6 @@ app.get("/api/products/count", async (_req, res) => {
 });
 
 app.get("/api/products", getProducts);
-
 app.post("/api/products", updateProducts);
 
 app.get("/api/products/create", async (_req, res) => {
