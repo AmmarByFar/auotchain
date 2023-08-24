@@ -13,7 +13,7 @@ export default function ContextualSaveBar({
         <ContextSave
           fullWidth={true}
           alignContentFlush
-          message='Unsaved changes'
+          message="Unsaved changes"
           saveAction={{
             onAction: onAction,
             loading,

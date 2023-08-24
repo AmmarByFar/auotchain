@@ -3,7 +3,7 @@ import {
   QueryClientProvider,
   QueryCache,
   MutationCache,
-} from "react-query";
+} from 'react-query';
 
 /**
  * Sets up the QueryClientProvider from react-query.
