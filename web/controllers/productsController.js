@@ -39,7 +39,7 @@ const getInventoryLevels = async (
     );
     inventoryLevelsData.push(inventoryLevels.data);
     if (inventoryLevels?.pageInfo?.nextPage) {
-      console.log('next page availabl4e', inventoryLevels.pageInfo.nextPage);
+      console.log('next page available', inventoryLevels.pageInfo.nextPage);
       await getInventoryLevels(
         session,
         inventoryLevels.pageInfo.nextPage.query.page_info,

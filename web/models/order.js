@@ -1,7 +1,5 @@
 import Sequelize from 'sequelize';
 import db from '../config/database.js';
-import User from './user.js'; 
-import OrderItem from './orderItem.js'
 
 const Order = db.define('Order', {
   id: {
