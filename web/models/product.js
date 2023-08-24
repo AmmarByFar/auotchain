@@ -11,7 +11,7 @@ const Product = db.define('Product', {
     },
     productId: {
       type: Sequelize.STRING,
-      allowNull: false
+      allowNull: true
     },
     supplierId: {
       type: Sequelize.INTEGER,

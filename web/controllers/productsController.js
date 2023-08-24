@@ -187,9 +187,6 @@ export const getProducts = async (req, res, next) => {
       raw: true,
     });
 
-    // console.log("Incoming Inventory List:");
-    // console.log(JSON.stringify(incomingInventoryList, null, 2));
-
     const combinedProducts = shopifyProducts.data
       .map((product) => {
         return product.variants.map((variant) => {
@@ -203,9 +200,7 @@ export const getProducts = async (req, res, next) => {
           const incomingInventory = incomingInventoryList.find(
             (ii) => ii.SKU === variant.sku
           );
-          const incoming = incomingInventory
-            ? incomingInventory.totalIncoming
-            : 0;
+          const incoming = Number(incomingInventory ? incomingInventory.totalIncoming : 0);
 
           const pending = pendingOrderQuantities[variant.sku] || 0;
 
