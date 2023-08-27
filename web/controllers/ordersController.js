@@ -94,17 +94,88 @@ export const getOrder = async (req, res, next) => {
   }
 };
 
+export const updateOrder = async (req, res, next) => {
+  try {
+      const shopDomain = res.locals.shopify.session.shop;
+      const { orderId } = req.params;
 
+      const { 
+          orderDate, 
+          orderNotes, 
+          supplierID, 
+          warehouseManagerID,
+          orderStatus, 
+          items,
+          shipments,
+          invoices 
+      } = req.body;
 
-export const updateOrder = async(req, res, next) =>{
-    try{
-        const shopDomain = res.locals.shopify.session.shop;
+      const order = await Order.findByPk(orderId);
+      
+      if (!order) {
+          return res.status(404).json({ message: 'Order not found' });
+      }
 
-    }catch (err) {
-        console.error(err);
-        next(err);
-    }
-}
+      await db.transaction(async (t) => {
+          if (items && items.length > 0) {
+              await OrderItem.destroy({ where: { orderID: orderId } }, { transaction: t });
+              
+              const orderItems = items.map(item => ({
+                  orderID: orderId,
+                  SKU: item.SKU,
+                  quantity: item.quantity,
+              }));
+              
+              await OrderItem.bulkCreate(orderItems, { transaction: t });
+          }
+
+          if (shipments && shipments.length > 0) {
+              await Shipment.destroy({ where: { orderID: orderId } }, { transaction: t });
+              
+              const orderShipments = shipments.map(shipment => ({
+                  orderID: orderId,
+                  unitCount: shipment.unitCount,
+                  tracking: shipment.tracking,
+                  status: shipment.status,
+                  notes: shipment.notes,
+              }));
+              
+              await Shipment.bulkCreate(orderShipments, { transaction: t });
+          }
+
+          if (invoices && invoices.length > 0) {
+              await Invoice.destroy({ where: { orderID: orderId } }, { transaction: t });
+              
+              const orderInvoices = invoices.map((invoice, index) => ({
+                  orderID: orderId,
+                  amount: invoice.amount,
+                  date: invoice.date,
+                  filePath: invoice.filePath, // Assuming you're handling file updates somewhere else
+              }));
+              
+              await Invoice.bulkCreate(orderInvoices, { transaction: t });
+          }
+
+          // Updating the Order model itself
+          await Order.update({
+              orderDate,
+              orderNotes,
+              supplierID,
+              warehouseManagerID,
+              orderStatus
+          }, {
+              where: { id: orderId },
+              transaction: t
+          });
+      });
+
+      return res.status(200).json({ message: 'Order updated successfully' });
+
+  } catch (err) {
+      console.error('Error in updateOrder:', err);
+      return next(err);
+  }
+};
 
 export const createOrder = async (req, res, next) => {
   try {
