@@ -5,6 +5,7 @@ import Invoice from "../models/invoice.js"
 import Shipment from "../models/shipment.js"
 import shopify from "../shopify.js"
 import Sequelize from 'sequelize';
+import db from '../config/database.js';
 
 export const getOrders = async (req, res, next) => {
   try {
