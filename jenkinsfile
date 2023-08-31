@@ -1,0 +1,15 @@
+node {
+    checkout scm 
+
+    stage('Build Docker Image') {
+        sh 'docker build -t autochain-image .'
+    }
+
+    stage('Stop Previous Container') {
+        sh 'docker stop autochain || true && docker rm autochain || true'
+    }
+
+    stage('Run Docker Container') {
+        sh 'docker run -d --name autochain -p 8082:8081 autochain-image'
+    }
+}
