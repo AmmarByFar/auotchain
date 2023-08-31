@@ -19,6 +19,14 @@ import { useAuthenticatedFetch } from '@shopify/app-bridge-react';
 import useCreateOrder from '../hooks/useCreateOrder';
 
 const currentDate = new Date();
+function validateFields(data) {
+  for (const key in data) {
+    if (data.hasOwnProperty(key) && data[key] === '') {
+      return false;
+    }
+  }
+  return true;
+}
 export default function CreateOrder() {
   const fetch = useAuthenticatedFetch();
   const { createOrder } = useCreateOrder(fetch);
@@ -29,9 +37,6 @@ export default function CreateOrder() {
   );
   const [orderData, setOrderData] = useState({
     shopDomain: '',
-    productID: '',
-    SKU: '',
-    orderAmount: '',
     supplierID: '',
     warehouseManagerID: '',
     orderStatus: '',
@@ -40,13 +45,9 @@ export default function CreateOrder() {
     shipmentTracking: '',
     shipmentDate: currentDate,
     expectedArrivalDate: currentDate,
-    shipmentStatus: '',
-    shipmentNotes: '',
-    invoiceNumber: '',
     invoiceDate: currentDate,
-    filePath: '',
     shipments: [],
-    invoices: []
+    invoices: [],
   });
   const [orderDateVisible, setOrderDateVisible] = useState(false);
   const [orderDate, setOrderDate] = useState(currentDate);
@@ -76,14 +77,34 @@ export default function CreateOrder() {
         SKU: product.sku,
         quantity: product.orderAmount,
       })),
+      shipments: orderData.shipments,
+      invoices: orderData.invoices
     };
 
+    if(!validateFields(payload)){
+      alert('All fields are required');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('orderDate', payload.orderDate);
+    formData.append('orderNotes', payload.orderNotes);
+    formData.append('supplierID', payload.supplierID);
+    formData.append('warehouseManagerID', payload.warehouseManagerID);
+    formData.append('items', JSON.stringify(payload.items));
+    formData.append('shipments', JSON.stringify(payload.shipments));
+    for (let i = 0; i < orderData.invoices.length; i++) {
+      for(let j = 0; j < orderData.invoices[i].filePaths.length; j++){
+        formData.append(`invoiceFiles`, orderData.invoices[i].filePaths[j]);
+      }
+    }
+
+    console.log(formData.getAll('invoiceFiles')); 
     console.log(payload)
-
     // Call API to create the order, shipment, and invoice using orderData
-    // const result = await createOrder(payload);
+    const result = await createOrder(formData);
 
-    // console.log('order create result', result);
+    console.log('order create result', result);
   };
 
 
@@ -98,6 +119,7 @@ export default function CreateOrder() {
       primaryAction={{
         content: 'Create Purchase Order',
         onAction: handleSubmit,
+        disabled: isAllFieldDisabled,
       }}
       secondaryActions={[
         {
@@ -184,6 +206,7 @@ export default function CreateOrder() {
                     }))
                   }
                 />
+                
               </LegacyCard>
             </div>
           </Layout.Section>

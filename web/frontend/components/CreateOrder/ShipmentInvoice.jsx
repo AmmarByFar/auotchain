@@ -7,11 +7,15 @@ import {
   Select,
   DropZone,
   Button,
-  Text,
+  Popover,
+  Icon,
+  DatePicker,
   Card,
-  List,
 } from '@shopify/polaris';
 import React, { useCallback, useState } from 'react';
+import OrderDataPreview from './OrderDataPreview';
+import InvoiceDataPreview from './InvoiceDataPreview';
+import { CalendarMinor } from '@shopify/polaris-icons';
 
 const orderStatusOptions = [
   { label: '', value: '' },
@@ -26,6 +30,12 @@ const initialShipmentData = {
   notes: '',
 };
 
+const initialInvoiceData = {
+  totalCost: 0,
+  date: '',
+  filePaths: [],
+};
+
 const shipmentFields = {
   unitCount: 'unitCount',
   tracking: 'tracking',
@@ -33,32 +43,92 @@ const shipmentFields = {
   notes: 'notes',
 };
 
+function validateFields(data) {
+  for (const key in data) {
+    if (data.hasOwnProperty(key) && data[key] === '') {
+      return false;
+    }
+  }
+  return true;
+}
+const currentDate = new Date();
 export default function ShipmentInvoice({ orderData, setOrderData }) {
-  console.log('order data from state', orderData);
-  const [active, setActive] = useState(false);
+  const [files, setFiles] = useState([]);
   const [shipmentModalActive, setShipmentModalActive] = useState(false);
   const [invoiceModalActive, setInvoiceModalActive] = useState(false);
-
+  const [currentInvoiceData, setCurrentInvoiceData] =
+    useState(initialInvoiceData);
   const [currenctShipmentData, setCurrentShipmentData] =
     useState(initialShipmentData);
-
-  const [currenctInvoiceData, setCurrenctInvoiceData] = useState({
-    totalCost: 0,
-    date: '',
-    filePath: '',
+  const [orderDateVisible, setOrderDateVisible] = useState(false);
+  const [orderDate, setOrderDate] = useState(currentDate);
+  const [{ orderDateMonth, orderDateYear }, setOrderDateValues] = useState({
+    orderDateMonth: orderDate.getMonth(),
+    orderDateYear: orderDate.getFullYear(),
   });
+  function handleOrderDateChange({ end: newSelectedDate }) {
+    setOrderDate(newSelectedDate);
+    setOrderDateVisible(false);
+    setCurrentInvoiceData((prev) => {
+      return {
+        ...prev,
+        date: newSelectedDate.toISOString(),
+      };
+    });
+  }
 
-  const handleConfirmShipmentData = () => {
+  function handleOrderMonthChange(month, year) {
+    setOrderDateValues({ orderDateMonth: month, orderDateYear: year });
+  }
+  const orderDateFormattedValue = orderDate.toISOString().slice(0, 10);
+  console.log({currentInvoiceData});
+  const handleDropZoneDrop = useCallback(
+    (_dropFiles, acceptedFiles, _rejectedFiles) => {
+      setCurrentInvoiceData((prev) => {
+        return {
+          ...prev,
+          filePaths: [...acceptedFiles],
+        };
+      });
+    },
+    []
+  );
+
+  const handleConfirmModal = (type) => {
     const orderDataClone = structuredClone(orderData);
-    const currenOrderDataClone = structuredClone(currenctShipmentData);
-    orderDataClone.shipments.push(currenOrderDataClone);
-    console.log({ orderDataClone });
+
+    if (type === 'shipment') {
+      if (!validateFields(currenctShipmentData)) {
+        alert('All fields are required');
+        return;
+      }
+      const currentShipmentDataClone = structuredClone(currenctShipmentData);
+      orderDataClone.shipments.push(currentShipmentDataClone);
+    }
+    if (type === 'invoice') {
+      if (!validateFields(currentInvoiceData)) {
+        alert('All fields are required');
+        return;
+      }
+      const currentInvoiceDatClone = structuredClone(currentInvoiceData);
+      orderDataClone.invoices.push(currentInvoiceDatClone);
+      console.log({orderDataClone})
+    }
     setOrderData(orderDataClone);
+    setCurrentShipmentData(initialShipmentData);
+    setCurrentInvoiceData(initialInvoiceData);
+    setFiles([]);
     handleClose();
   };
 
-  const handleCancelCurrentShipmentData = () => {
+  const cancelShipmentModal = () => {
     setCurrentShipmentData(initialShipmentData);
+    handleClose();
+  };
+
+  const cancelInvoiceModal = () => {
+    setCurrentInvoiceData(initialShipmentData);
+    handleClose();
   };
 
   const handleClose = () => {
@@ -76,6 +146,24 @@ export default function ShipmentInvoice({ orderData, setOrderData }) {
       Add Invoices
     </Button>
   );
+
+  const handleCurrentInvoiceDataChange = useCallback((value, field) => {
+    if (field === 'filePaths') {
+      setCurrentInvoiceData((prev) => {
+        return {
+          ...prev,
+          filePaths: files,
+        };
+      });
+    } else {
+      setCurrentInvoiceData((prev) => {
+        return {
+          ...prev,
+          [field]: value,
+        };
+      });
+    }
+  }, []);
 
   const handleCurrentShipmentDataChange = (value, field) => {
     setCurrentShipmentData((prev) => {
@@ -95,14 +183,15 @@ export default function ShipmentInvoice({ orderData, setOrderData }) {
           title="Add Shipment"
           primaryAction={{
             content: 'Add',
-            onAction: handleConfirmShipmentData,
+            onAction: () => handleConfirmModal('shipment'),
           }}
           secondaryActions={[
             {
               content: 'Cancel',
-              onAction: handleClose,
+              onAction: cancelShipmentModal,
             },
           ]}
+          onClose={handleClose}
         >
           <Modal.Section>
             <TextField
@@ -139,20 +228,7 @@ export default function ShipmentInvoice({ orderData, setOrderData }) {
             />
           </Modal.Section>
         </Modal>
-        {orderData.shipments?.map((shipment) => {
-          return (
-            <div key={shipment.tracking} style={{ margin: '5px 0'}}>
-              <Card padding={2}>
-                <List>
-                  <List.Item>Total Units:{shipment.unitCount}</List.Item>
-                  <List.Item>Tracking: {shipment.tracking}</List.Item>
-                  <List.Item>Status:{shipment.status} </List.Item>
-                  <List.Item>Note:{shipment.notes} </List.Item>
-                </List>
-              </Card>
-            </div>
-          );
-        })}
+        <OrderDataPreview orderData={orderData} />
       </LegacyCard>
       <LegacyCard sectioned title="Invoice Information">
         <Modal
@@ -161,41 +237,74 @@ export default function ShipmentInvoice({ orderData, setOrderData }) {
           title="Add Invoice"
           primaryAction={{
             content: 'Add',
-            onAction: handleClose,
+            onAction: () => handleConfirmModal('invoice'),
           }}
           secondaryActions={[
             {
               content: 'Cancel',
-              onAction: handleClose,
+              onAction: cancelInvoiceModal,
             },
           ]}
         >
           <Modal.Section>
             <TextField
-              label="Invoice Number"
-              value={orderData.invoiceNumber}
+              label="Total Cost"
+              value={currentInvoiceData.totalCost}
               onChange={(value) =>
-                setOrderData((prevState) => ({
-                  ...prevState,
-                  invoiceNumber: value,
-                }))
+                handleCurrentInvoiceDataChange(value, 'totalCost')
               }
             />
-            <TextField
+            <Popover
+              active={orderDateVisible}
+              autofocusTarget="none"
+              preferredAlignment="left"
+              fullWidth
+              preferInputActivator={false}
+              preferredPosition="below"
+              preventCloseOnChildOverlayClick
+              onClose={() => setOrderDateVisible(false)}
+              activator={
+                <TextField
+                  role="combobox"
+                  label=" Date"
+                  prefix={<Icon source={CalendarMinor} />}
+                  value={orderDateFormattedValue}
+                  onFocus={() => setOrderDateVisible(true)}
+                  onChange={() => {}}
+                  autoComplete="off"
+                />
+              }
+            >
+              <Card>
+                <DatePicker
+                  month={orderDateMonth}
+                  year={orderDateYear}
+                  selected={orderDate}
+                  onMonthChange={(month, year) =>
+                    handleOrderMonthChange(month, year)
+                  }
+                  onChange={(date) => handleOrderDateChange(date)}
+                />
+              </Card>
+            </Popover>
+            {/* <TextField
               label="Invoice Date"
-              value={orderData.invoiceNumber}
+              type="date"
+              value={currentInvoiceData.date}
               onChange={(value) =>
-                setOrderData((prevState) => ({
-                  ...prevState,
-                  invoiceNumber: value,
-                }))
+                handleCurrentInvoiceDataChange(value, 'date')
               }
-            />
-            <DropZone label="Invoice file" allowMultiple={false}>
+            /> */}
+            <DropZone
+              label="Invoice file"
+              allowMultiple={true}
+              onDrop={handleDropZoneDrop}
+            >
               <DropZone.FileUpload />
             </DropZone>
           </Modal.Section>
         </Modal>
+        <InvoiceDataPreview orderData={orderData} />
       </LegacyCard>
     </Box>
   );
