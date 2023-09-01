@@ -201,7 +201,7 @@ export const createOrder = async (req, res, next) => {
     const shopDomain = res.locals.shopify.session.shop;
 
     console.log("Files: ", req.files);
-    const filePaths = req.files.map(file => file.path);
+    const filePaths = req.files.map(file => file.url);
     console.log("File paths: ", filePaths);
 
     const { 
