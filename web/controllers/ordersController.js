@@ -196,8 +196,11 @@ export const createOrder = async (req, res, next) => {
         invoices  // Array of {totalCost, date, filePath}
     } = req.body;
 
+    console.log("items: ", items);
+    console.log("invoices: ", invoices);
+    console.log("shipments: ", shipments);
+
     const result = await db.transaction(async (t) => {
-      // Create the Order first
       const newOrder = await Order.create(
         {
           shopDomain,
@@ -210,7 +213,8 @@ export const createOrder = async (req, res, next) => {
         { transaction: t }
       );
 
-      const orderItems = items.map((item) => ({
+      const parsedItems = typeof items === "string" ? JSON.parse(items) : items;
+      const orderItems = parsedItems.map((item) => ({
         orderID: newOrder.id,
         SKU: item.SKU,
         quantity: item.quantity,
@@ -218,29 +222,30 @@ export const createOrder = async (req, res, next) => {
 
       await OrderItem.bulkCreate(orderItems, { transaction: t });
 
-      const orderShipments = shipments.map(shipment => ({
+      if (shipments && shipments.length > 0) {
+          const parsedShipments = typeof shipments === "string" ? JSON.parse(shipments) : shipments;
+          const orderShipments = parsedShipments.map(shipment => ({
           orderID: newOrder.id,
-          amount: shipment.amount,
+          unitCount: shipment.unitCount,
           tracking: shipment.tracking,
           status: shipment.status,
           notes: shipment.notes,
-      }));
+          }));
+          await Shipment.bulkCreate(orderShipments, { transaction: t });
+      }
 
-      await Shipment.bulkCreate(orderShipments, { transaction: t });
-
-      const orderInvoices = invoices.map((invoice, index) => ({
-        orderID: newOrder.id,
-        amount: invoice.amount,
-        date: invoice.date,
-        filePath: filePaths[index] || null
-      }));
-    
-      await Invoice.bulkCreate(orderInvoices, { transaction: t });
-
+      if (invoices && invoices.length > 0) {
+          const parsedInvoices = typeof invoices === "string" ? JSON.parse(invoices) : invoices;
+          const orderInvoices = parsedInvoices.map((invoice, index) => ({
+          orderID: newOrder.id,
+          amount: invoice.amount,
+          date: invoice.date,
+          filePath: filePaths[index] || null
+          }));
+          await Invoice.bulkCreate(orderInvoices, { transaction: t });
+      }
       return newOrder; 
     });
-
-    res.json(result);  
 
     res.status(201).json({
       success: true,
