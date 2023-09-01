@@ -85,7 +85,8 @@ const OrdersList = () => {
             onSelectionChange={handleSelectionChange}
             headings={[
               { title: 'Order ID' },
-              { title: 'Order Amount' },
+              { title: 'Unit Amount' },
+              { title: 'Total Cost' },
               { title: 'Order Status' },
               { title: 'Order Date' },
               { title: 'Supplier' },
@@ -106,6 +107,7 @@ const OrdersList = () => {
                   </Text>
                 </IndexTable.Cell>
                 <IndexTable.Cell>{order.orderAmount}</IndexTable.Cell>
+                <IndexTable.Cell>{order.orderCost}</IndexTable.Cell>
                 <IndexTable.Cell>{order.orderStatus}</IndexTable.Cell>
                 <IndexTable.Cell>{order.orderDate}</IndexTable.Cell>
                 <IndexTable.Cell>{order.Supplier.username}</IndexTable.Cell>

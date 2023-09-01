@@ -13,14 +13,22 @@ export const getOrders = async (req, res, next) => {
     const orders = await Order.findAll({
       attributes: [
         'id',
-        'orderStatus',
+        [Sequelize.fn('SUM', Sequelize.col('OrderItems.quantity')), 'orderAmount'],
+        [Sequelize.fn('SUM', Sequelize.col('Invoices.totalCost')), 'orderCost'],
         'orderDate',
         'orderNotes',
-        // Aggregate function to calculate total amount
+        [Sequelize.fn('SUM', Sequelize.literal('CASE WHEN Shipments.status = "Delivered" THEN 1 ELSE 0 END')), 'deliveredCount'],
+        [Sequelize.fn('COUNT', Sequelize.col('Shipments.id')), 'shipmentCount'],
         [
-          Sequelize.fn('SUM', Sequelize.col('OrderItems.quantity')),
-          'totalAmount',
-        ],
+          Sequelize.literal(`
+            CASE 
+              WHEN SUM(CASE WHEN Shipments.status = "Delivered" THEN 1 ELSE 0 END) = 0 THEN "Created" 
+              WHEN SUM(CASE WHEN Shipments.status = "Delivered" THEN 1 ELSE 0 END) = COUNT(Shipments.id) THEN "Delivered" 
+              WHEN SUM(CASE WHEN Shipments.status = "Delivered" THEN 1 ELSE 0 END) < COUNT(Shipments.id) AND SUM(CASE WHEN Shipments.status = "Delivered" THEN 1 ELSE 0 END) > 0 THEN "Partially Delivered" 
+              ELSE "Shipped" 
+            END`),
+          'orderStatus'
+        ]
       ],
       include: [
         {
@@ -38,6 +46,16 @@ export const getOrders = async (req, res, next) => {
           attributes: [],
           duplicating: false,
         },
+        {
+          model: Shipment,
+          attributes: [],
+          duplicating: false,
+        },
+        {
+          model: Invoice,
+          attributes: [],
+          duplicating: false,
+        }
       ],
       where: { shopDomain },
       group: ['Order.id', 'Supplier.id', 'WarehouseManager.id'],
@@ -50,6 +68,7 @@ export const getOrders = async (req, res, next) => {
     next(error)
   }
 };
+
 
 export const getOrder = async (req, res, next) => {
   try {
@@ -151,13 +170,12 @@ export const updateOrder = async (req, res, next) => {
                   orderID: orderId,
                   amount: invoice.amount,
                   date: invoice.date,
-                  filePath: invoice.filePath, // Assuming you're handling file updates somewhere else
+                  filePath: invoice.filePath,
               }));
               
               await Invoice.bulkCreate(orderInvoices, { transaction: t });
           }
 
-          // Updating the Order model itself
           await Order.update({
               orderDate,
               orderNotes,
