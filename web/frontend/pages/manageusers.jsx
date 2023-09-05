@@ -4,6 +4,9 @@ import {
   Avatar,
   Text,
   Card,
+  Modal,
+  TextField,
+  Select,
   useIndexResourceState,
 } from '@shopify/polaris';
 import { useState, useEffect, useCallback } from 'react';
@@ -18,13 +21,61 @@ export default function UserManagement() {
 
   const fetch = useAuthenticatedFetch();
 
-  // Fetch users from the API
-  useEffect(() => {
-    fetch('/api/users')
-      .then((response) => response.json())
-      .then((data) => setUsers(data))
-      .catch((error) => console.error('Error fetching users:', error));
-  }, []); // The empty array means this effect will only run once, after the first render
+  // State for modal visibility and form data
+  const [modalActive, setModalActive] = useState(false);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [role, setRole] = useState('');
+
+  const openModal = useCallback(() => setModalActive(true), []);
+  const closeModal = useCallback(() => setModalActive(false), []);
+
+  const handleNameChange = useCallback((value) => setName(value), []);
+  const handleEmailChange = useCallback((value) => setEmail(value), []);
+  const handleRoleChange = useCallback((value) => setRole(value), []);
+
+    // Handle user creation using the form data and make a POST request
+    const handleCreateUser = useCallback(async () => {
+      const userData = {
+        username: name,
+        email: email,
+        userRole: role,
+      };
+  
+      try {
+        const response = await fetch('/api/users', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(userData),
+        });
+  
+        const data = await response.json();
+  
+        if (response.ok) {
+          console.log(data.message);
+          fetchUsers();
+          closeModal();
+        } else {
+          console.error(data.error);
+        }
+      } catch (error) {
+        console.error('Failed to create user:', error);
+      }
+    }, [name, email, role]);
+  
+    // Factored out the fetching logic to make it reusable after creating a user
+    const fetchUsers = useCallback(() => {
+      fetch('/api/users')
+        .then((response) => response.json())
+        .then((data) => setUsers(data))
+        .catch((error) => console.error('Error fetching users:', error));
+    }, []);
+  
+    useEffect(() => {
+      fetchUsers();
+    }, []);
 
   const resourceName = {
     singular: 'user',
@@ -54,25 +105,21 @@ export default function UserManagement() {
   ));
 
   const secondaryActionsEnabled = selectedResources.length > 0;
-  const navigate = useNavigate();
+
+  const userRoleOptions = [
+    { label: '', value: '' },
+    { label: 'Supplier', value: 'Supplier' },
+    { label: 'Warehouse Manager', value: 'Warehouse Manager' },
+  ];
 
   return (
     <Page
       title="Inventory Personnel"
       primaryAction={{
-        content: 'Create User',
-        onAction: () => {
-          navigate('/createuser');
-        },
+        content: 'Add User',
+        onAction: openModal,
       }}
       secondaryActions={[
-        {
-          content: 'Edit',
-          icon: EditMajor,
-          accessibilityLabel: 'Secondary action label',
-          onAction: () => alert('Duplicate action'),
-          disabled: !secondaryActionsEnabled,
-        },
         {
           content: 'Delete',
           icon: DeleteMinor,
@@ -83,6 +130,43 @@ export default function UserManagement() {
         },
       ]}
     >
+      <Modal
+        open={modalActive}
+        onClose={closeModal}
+        title="Create New User"
+        primaryAction={{
+          content: 'Create',
+          onAction: handleCreateUser, 
+        }}
+        secondaryActions={[
+          {
+            content: 'Cancel',
+            onAction: closeModal,
+          },
+        ]}
+      >
+        <Modal.Section>
+          <TextField
+            label="Name"
+            value={name}
+            onChange={handleNameChange}
+            autoComplete="off"
+          />
+          <TextField
+            label="Email"
+            type="email"
+            value={email}
+            onChange={handleEmailChange}
+            autoComplete="off"
+          />
+          <Select
+            label="Role"
+            options={userRoleOptions}
+            onChange={handleRoleChange}
+            value={role}
+          />
+        </Modal.Section>
+      </Modal>
       <Card padding={0}>
         <IndexTable
           resourceName={resourceName}
@@ -93,7 +177,7 @@ export default function UserManagement() {
           onSelectionChange={handleSelectionChange}
           headings={[
             { title: 'Avatar' },
-            { title: 'Username' },
+            { title: 'Name' },
             { title: 'User Role' },
             { title: 'Email' },
           ]}

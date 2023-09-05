@@ -2,14 +2,16 @@ import User from '../models/user.js';
 
 // Handle user creation on POST
 export const createUser = async (req, res) => {
-  const { username, shopDomain, userRole } = req.body;
+  const shopDomain = res.locals.shopify.session.shop;
+  const { username, email, userRole } = req.body;
   try {
     const tempPassword = generateTempPassword(); 
     const user = await User.create({
       username,
       password: tempPassword,
       shopDomain,
-      userRole
+      userRole, 
+      email
     });
     // TODO: Send an email to the new user with instructions to change their password
     res.status(201).json({
