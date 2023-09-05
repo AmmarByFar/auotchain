@@ -11,8 +11,7 @@ import {
 } from '@shopify/polaris';
 import { useState, useEffect, useCallback } from 'react';
 import { useAppQuery, useAuthenticatedFetch } from '../hooks';
-import { EditMajor, DeleteMinor } from '@shopify/polaris-icons';
-import { useNavigate } from 'react-router-dom';
+import { DeleteMinor } from '@shopify/polaris-icons';
 
 export default function UserManagement() {
   const [users, setUsers] = useState([]);
