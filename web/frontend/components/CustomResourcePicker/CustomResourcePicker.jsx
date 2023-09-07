@@ -77,24 +77,31 @@ export default function CustomResourcePicker({
         ]}
       >
         <Modal.Section>
-          {isProductsLoading && open && <Spinner />}
-          <TextField
-            placeholder="Search products"
-            autoFocus={true}
-            type="text"
-            value={searchTerm}
-            onChange={(value) => setSearchTerm(value)}
-          />
-          <LegacyCard>
-            <ResourceList
-              resourceName={resourceName}
-              items={filterProdcuts(productsData)}
-              renderItem={renderItem}
-              selectedItems={selectedProducts.map((item) => item.sku)}
-              onSelectionChange={handleSelection}
-              selectable
-            />
-          </LegacyCard>
+          {isProductsLoading && open ? (
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <Spinner />
+            </div>
+          ) : (
+            <>
+              <TextField
+                placeholder="Search products"
+                autoFocus={true}
+                type="text"
+                value={searchTerm}
+                onChange={(value) => setSearchTerm(value)}
+              />
+              <LegacyCard>
+                <ResourceList
+                  resourceName={resourceName}
+                  items={filterProdcuts(productsData)}
+                  renderItem={renderItem}
+                  selectedItems={selectedProducts.map((item) => item.sku)}
+                  onSelectionChange={handleSelection}
+                  selectable
+                />
+              </LegacyCard>
+            </>
+          )}
         </Modal.Section>
       </Modal>
     </div>
@@ -111,15 +118,7 @@ function renderItem(item) {
       media={media}
       accessibilityLabel={`View details for ${name}`}
     >
-      <div
-        style={
-          {
-            // width: '100%',
-            // display: 'flex',
-            // alignItems: 'center',
-          }
-        }
-      >
+      <div>
         <Text variant="bodyMd" fontWeight="bold" as="h3">
           {title}
         </Text>

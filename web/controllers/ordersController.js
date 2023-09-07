@@ -256,7 +256,7 @@ export const createOrder = async (req, res, next) => {
           const parsedInvoices = typeof invoices === "string" ? JSON.parse(invoices) : invoices;
           const orderInvoices = parsedInvoices.map((invoice, index) => ({
           orderID: newOrder.id,
-          amount: invoice.totalCost || 0,
+          totalCost: invoice.totalCost || 0,
           date: invoice.date,
           filePath: filePaths[index] || null
           }));

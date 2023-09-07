@@ -78,10 +78,10 @@ export default function CreateOrder() {
         quantity: product.orderAmount,
       })),
       shipments: orderData.shipments,
-      invoices: orderData.invoices
+      invoices: orderData.invoices,
     };
 
-    if(!validateFields(payload)){
+    if (!validateFields(payload)) {
       alert('All fields are required');
       return;
     }
@@ -93,20 +93,27 @@ export default function CreateOrder() {
     formData.append('warehouseManagerID', payload.warehouseManagerID);
     formData.append('items', JSON.stringify(payload.items));
     formData.append('shipments', JSON.stringify(payload.shipments));
+    formData.append(
+      'invoices',
+      JSON.stringify(
+        orderData.invoices.map((item) => ({
+          totalCost: item.totalCost,
+          date: item.date,
+        }))
+      )
+    );
     for (let i = 0; i < orderData.invoices.length; i++) {
-      for(let j = 0; j < orderData.invoices[i].filePaths.length; j++){
+      for (let j = 0; j < orderData.invoices[i].filePaths.length; j++) {
         formData.append(`invoiceFiles`, orderData.invoices[i].filePaths[j]);
       }
     }
 
-    console.log(formData.getAll('invoiceFiles')); 
-    console.log(payload)
+    console.log(payload);
     // Call API to create the order, shipment, and invoice using orderData
     const result = await createOrder(formData);
 
     console.log('order create result', result);
   };
-
 
   return (
     <Page
@@ -206,7 +213,6 @@ export default function CreateOrder() {
                     }))
                   }
                 />
-                
               </LegacyCard>
             </div>
           </Layout.Section>

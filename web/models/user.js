@@ -27,7 +27,7 @@ const User = db.define('User', {
   },
   email: {
     type: Sequelize.STRING,
-    allowNull: false
+    allowNull: true
   }
 }, {
   hooks: {
