@@ -12,11 +12,13 @@ import {
   LegacyCard,
   Layout,
   Frame,
+  Select
 } from '@shopify/polaris';
 import CreateOrderProductList from '../components/CreateOrderProductList';
 import ShipmentInvoice from '../components/CreateOrder/ShipmentInvoice';
 import { useAuthenticatedFetch } from '@shopify/app-bridge-react';
 import useCreateOrder from '../hooks/useCreateOrder';
+import useUsers from '../hooks/useUsers';
 
 const currentDate = new Date();
 function validateFields(data) {
@@ -55,6 +57,20 @@ export default function CreateOrder() {
     orderDateMonth: orderDate.getMonth(),
     orderDateYear: orderDate.getFullYear(),
   });
+
+  const allUsers = useUsers();
+  const suppliers = allUsers
+  .filter(user => user.UserRole === 'Supplier')
+  .map(user => ({ label: user.UserName, value: user.id.toString() }));
+
+  const warehouseManagers = allUsers
+    .filter(user => user.UserRole === 'Warehouse Manager')
+    .map(user => ({ label: user.UserName, value: user.id.toString() }));
+
+  suppliers.unshift({ label: 'Select a Supplier', value: '' });
+  warehouseManagers.unshift({ label: 'Select a Warehouse Manager', value: '' });
+
+
   const isAllFieldDisabled = !selectedProducts.length;
   const orderDateFormattedValue = orderDate.toISOString().slice(0, 10);
 
@@ -146,7 +162,25 @@ export default function CreateOrder() {
             />
             <div style={{ marginTop: '20px' }}>
               <LegacyCard sectioned title="Order Information" padding={5}>
-                <TextField
+              <Select
+                  disabled={isAllFieldDisabled}
+                  label="Supplier"
+                  options={suppliers}
+                  value={orderData.supplierID}
+                  onChange={(value) =>
+                    setOrderData(prevState => ({ ...prevState, supplierID: value }))
+                  }
+                />
+                <Select
+                  disabled={isAllFieldDisabled}
+                  label="Warehouse Manager"
+                  options={warehouseManagers}
+                  value={orderData.warehouseManagerID}
+                  onChange={(value) =>
+                    setOrderData(prevState => ({ ...prevState, warehouseManagerID: value }))
+                  }
+                />
+                {/* <TextField
                   disabled={isAllFieldDisabled}
                   label="Supplier"
                   value={orderData.supplierID}
@@ -167,7 +201,7 @@ export default function CreateOrder() {
                       warehouseManagerID: value,
                     }))
                   }
-                />
+                /> */}
                 <Popover
                   active={orderDateVisible}
                   autofocusTarget="none"
