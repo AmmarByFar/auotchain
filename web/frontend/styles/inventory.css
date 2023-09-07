@@ -56,3 +56,12 @@ li {
 .Polaris-IndexTable__EmptySearchResultWrapper .Polaris-LegacyStack--vertical {
   margin-top: 70px;
 }
+
+ul.Polaris-VerticalStack.Polaris-VerticalStack--listReset {
+    align-items: flex-start;
+}
+
+li.page-link.active {
+    text-decoration: underline;
+    font-weight: bold;
+}

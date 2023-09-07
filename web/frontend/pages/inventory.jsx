@@ -16,19 +16,10 @@ import { useAppQuery, useAuthenticatedFetch } from '../hooks';
 import usePagination from '../hooks/usePagination';
 import Paginator from '../components/UI/Paginator';
 import ContextualSaveBar from '../components/UI/ContextualSaveBar';
+import InventoryList from '../components/InventoryList/InventoryList';
 
 const isEqual = (object1, object2) =>
   JSON.stringify(object1) === JSON.stringify(object2);
-
-const tableHeadings = [
-  { title: 'Image' },
-  { title: 'SKU' },
-  { title: 'Title' },
-  { title: 'On Hand' },
-  { title: 'Incoming Inventory' },
-  { title: 'Net Inventory' },
-  { title: 'Pending Orders' },
-];
 
 function ProductsList() {
   const navigate = useNavigate();
@@ -58,25 +49,26 @@ function ProductsList() {
     },
   });
 
+  const { data: appSettingsData } = useAppQuery({
+    url: '/api/appSettings',
+    reactQueryOptions: {
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+    },
+  });
+
+  console.log('app settings data', appSettingsData);
   useEffect(() => {
     const isSameData = isEqual(products, originalProducts);
     if (isSameData) {
       setPrdouctsOnEdit([]);
     }
     setIsProductsDataChanged(!isSameData);
-  }, [products]);
+    setOriginalProducts(data);
+  }, [products, data]);
 
   const isLoadingState = isLoading || isFetching;
   const fetch = useAuthenticatedFetch();
-
-  // pagination settings
-  const itemsPerPage = 20;
-  const {
-    currentItems: currentProducts,
-    handlePageClick,
-    pageCount,
-    itemOffset,
-  } = usePagination(products, itemsPerPage);
 
   // index table utilites
   const {
@@ -87,14 +79,6 @@ function ProductsList() {
   } = useIndexResourceState(products);
   const secondaryActionsEnabled = selectedResources.length > 0;
 
-  useEffect(() => {
-    window.scrollTo({
-      top: document.documentElement.scrollHeight,
-      behavior: 'smooth',
-    });
-    removeSelectedResources(selectedResources);
-    () => {};
-  }, [itemOffset]);
   const handleDiscardAction = () => {
     setProducts(structuredClone(originalProducts));
     setPrdouctsOnEdit([]);
@@ -145,25 +129,17 @@ function ProductsList() {
         return response.json();
       })
       .then((data) => {
-        // Handle successful save, perhaps show a success notification
         setIsSaving(false);
         showToast('Saved Successfully');
+        setIsProductsDataChanged(false);
+        refetchProducts();
       })
       .catch((error) => {
-        console.error('Error saving OnHand value:', error);
         setIsSaving(false);
         refetchProducts();
         showToast('Failed to save OnHand value');
       });
   };
-
-  const emptyStateMarkup = (
-    <EmptySearchResult
-      title="No orders yet"
-      description="Try changing the filters or search term"
-      withIllustration
-    />
-  );
 
   return (
     <Page
@@ -200,61 +176,16 @@ function ProductsList() {
       ]}
     >
       <Card padding={1}>
-        <IndexTable
-          loading={isLoadingState}
-          itemCount={products.length}
-          selectedItemsCount={
-            allResourcesSelected ? 'All' : selectedResources.length
-          }
-          onSelectionChange={handleSelectionChange}
-          headings={tableHeadings}
-          emptyStateMarkup={emptyStateMarkup}
-          hasMoreItems
-        >
-          {currentProducts.map((product, index) => (
-            <IndexTable.Row
-              id={product.id}
-              key={product.id}
-              selected={selectedResources.includes(product.id)}
-              position={index}
-            >
-              <IndexTable.Cell>
-                <img
-                  src={product.imageUrl}
-                  alt={product.sku}
-                  style={{ width: '40px', height: '40px' }}
-                />
-              </IndexTable.Cell>
-              <IndexTable.Cell>
-                <Text variant="bodyMd" fontWeight="bold" as="span">
-                  {product.sku || 'NA'}
-                </Text>
-              </IndexTable.Cell>
-              <IndexTable.Cell>
-                <Text variant="bodyMd" fontWeight="bold" as="span">
-                  {product.title}
-                </Text>
-              </IndexTable.Cell>
-              <IndexTable.Cell>
-                <div onClick={(e) => e.stopPropagation()}>
-                  <TextField
-                    type="number"
-                    value={product.onHand}
-                    onChange={(value) => {
-                      handleOnHandChange(product, value);
-                    }}
-                  />
-                </div>
-              </IndexTable.Cell>
-              <IndexTable.Cell>{product.incomingInventory}</IndexTable.Cell>
-              <IndexTable.Cell>{product.netInventory}</IndexTable.Cell>
-              <IndexTable.Cell>{product.pendingOrders}</IndexTable.Cell>
-            </IndexTable.Row>
-          ))}
-        </IndexTable>
-        {products.length !== 0 ? (
-          <Paginator pageCount={pageCount} handlePageClick={handlePageClick} />
-        ) : null}
+        <InventoryList
+          allResourcesSelected={allResourcesSelected}
+          handleOnHandChange={handleOnHandChange}
+          handleSelectionChange={handleSelectionChange}
+          isLoadingState={isLoadingState}
+          products={products}
+          selectedResources={selectedResources}
+          removeSelectedResources={removeSelectedResources}
+          appSettingsData={appSettingsData}
+        />
         {isProductsDataChanged && (
           <ContextualSaveBar
             loading={isSaving}

@@ -1,13 +1,10 @@
 import {
-  TextField,
   IndexTable,
   LegacyCard,
   IndexFilters,
   useSetIndexFiltersMode,
   useIndexResourceState,
   Text,
-  ChoiceList,
-  RangeSlider,
   Badge,
   IndexFiltersMode,
 } from '@shopify/polaris';
