@@ -80,7 +80,7 @@ export const getOrder = async (req, res, next) => {
       include: [
         { model: User, as: 'Supplier', attributes: ['username'], foreignKey: 'supplierID' },
         { model: User, as: 'WarehouseManager', attributes: ['username'], foreignKey: 'warehouseManagerID' },
-        { model: OrderItem, attributes: ['productId', 'SKU', 'quantity'], foreignKey: 'orderID' },
+        { model: OrderItem, attributes: ['productID', 'SKU', 'quantity'], foreignKey: 'orderID' },
         { model: Shipment, attributes: ['amount', 'tracking', 'status', 'notes'], foreignKey: 'orderID' },
         { model: Invoice, attributes: ['amount', 'date', 'filePath'], foreignKey: 'orderID' }
       ]

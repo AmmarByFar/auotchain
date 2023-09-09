@@ -39,7 +39,7 @@ export default function UpdateOrder() {
     const navigate = useNavigate();
     const location = useLocation();
     const [selectedProducts, setSelectedProducts] = useState(
-    data?.orderItems || []
+    data?.OrderItems || []
   );
   const [orderData, setOrderData] = useState({
     shopDomain: '',
