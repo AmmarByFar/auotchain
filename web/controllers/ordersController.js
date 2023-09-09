@@ -72,45 +72,66 @@ export const getOrders = async (req, res, next) => {
 
 export const getOrder = async (req, res, next) => {
   try {
-      const { orderId } = req.params;
+    const { orderId } = req.params;
+    
+    // Fetch the order with associated models
+    const order = await Order.findOne({
+      where: { id: orderId },
+      include: [
+        { model: User, as: 'Supplier', attributes: ['username'], foreignKey: 'supplierID' },
+        { model: User, as: 'WarehouseManager', attributes: ['username'], foreignKey: 'warehouseManagerID' },
+        { model: OrderItem, attributes: ['productId', 'SKU', 'quantity'], foreignKey: 'orderID' },
+        { model: Shipment, attributes: ['amount', 'tracking', 'status', 'notes'], foreignKey: 'orderID' },
+        { model: Invoice, attributes: ['amount', 'date', 'filePath'], foreignKey: 'orderID' }
+      ]
+    });
+
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    // Extract productIds from order items
+    const productIds = order.OrderItems.map(item => item.productId).join(',');
+    
+    // Fetch the necessary products from Shopify
+    const shopifyProducts = await shopify.api.rest.Product.all({
+      session: res.locals.shopify.session,
+      ids: productIds,
+    });
+    
+    // Fetch the OnHand values for these products
+    const localProducts = await Product.findAll({
+      where: { productId: productIds.split(",") },
+      attributes: ['sku', 'OnHand', 'productId'],
+      raw: true,
+    });
+
+    // Match Shopify and local products with order items and map the additional properties
+    order.OrderItems = order.OrderItems.map(item => {
+      const shopifyProduct = shopifyProducts.data.find(p => p.id.toString() === item.productId);
+      const localProduct = localProducts.find(lp => lp.productId.toString() === item.productId);
+      const variant = shopifyProduct.variants.find(v => v.sku === item.SKU);
+      const variantImage = shopifyProduct.images.find(img => img.id === variant.image_id);
       
-      const order = await Order.findOne({
-          where: { id: orderId },
-          include: [
-              {
-                  model: User,
-                  as: 'Supplier',
-                  attributes: ['username']
-              },
-              {
-                  model: User,
-                  as: 'WarehouseManager',
-                  attributes: ['username']
-              },
-              {
-                  model: OrderItem,
-                  attributes: ['SKU', 'quantity']
-              },
-              {
-                  model: Shipment,
-                  attributes: ['amount', 'tracking', 'status', 'notes']
-              },
-              {
-                  model: Invoice,
-                  attributes: ['amount', 'date', 'filePath']
-              }
-          ]
-      });
+      return {
+        ...item,
+        imageUrl: variantImage ? variantImage.src : shopifyProduct.images[0]?.src || shopifyProduct?.image?.src,
+        title: `${shopifyProduct.title} - ${variant.title}`,
+        productId: shopifyProduct.id,
+        onHand: localProduct ? localProduct.OnHand : 0,
+      };
+    });
 
-      if (!order) {
-          return res.status(404).json({ message: 'Order not found' });
-      }
-
-      res.json(order);
+    res.json(order);
 
   } catch (error) {
-      console.error('Failed to fetch the order:', error);
-      res.status(500).json({ message: 'Failed to fetch the order' });
+    console.error('Failed to fetch the order:', error);
+
+    if (error instanceof Sequelize.ValidationError) {
+      return res.status(400).json({ message: 'Validation errors occurred', errors: error.errors });
+    }
+    
+    res.status(500).json({ message: 'Failed to fetch the order' });
   }
 };
 
@@ -209,7 +230,7 @@ export const createOrder = async (req, res, next) => {
         orderNotes, 
         supplierID, 
         warehouseManagerID,
-        items, // Array of {SKU, quantity}
+        items, // Array of {productId, SKU, quantity}
         shipments, // Array of {unitCount, tracking, status, notes}
         invoices  // Array of {totalCost, date}
     } = req.body;
@@ -236,6 +257,7 @@ export const createOrder = async (req, res, next) => {
         orderID: newOrder.id,
         SKU: item.SKU,
         quantity: item.quantity,
+        productID: item.productId
       }));
 
       await OrderItem.bulkCreate(orderItems, { transaction: t });

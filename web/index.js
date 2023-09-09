@@ -121,6 +121,7 @@ app.post('/api/appsettings', postSettings);
 
 app.get('/api/orders', getOrders);
 app.get('/api/order', getOrder);
+app.put('/api/order', updateOrder);
 app.post('/api/orders', upload.array("invoiceFiles", 15), createOrder);
 
 app.get("/api/products/count", async (_req, res) => {

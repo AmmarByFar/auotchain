@@ -38,6 +38,15 @@ const OrdersList = () => {
     contentToRender = <div>Error occured!</div>;
   }
 
+  const handleUpdateStatus = () => {
+    if (selectedResources.length === 1) {
+      const selectedOrderId = selectedResources[0]; // Assuming the selectedResources contains the order IDs
+      navigate(`/updateorder/${selectedOrderId}`);
+    } else {
+      alert('Please select only one order to update.');
+    }
+  };
+
   return (
     <Page
       fullWidth
@@ -53,7 +62,7 @@ const OrdersList = () => {
           content: 'Update Status',
           icon: ChecklistMajor,
           accessibilityLabel: 'Secondary action label',
-          onAction: () => alert('Duplicate action'),
+          onAction: handleUpdateStatus,
           disabled: !secondaryActionsEnabled,
         },
         {
@@ -63,14 +72,14 @@ const OrdersList = () => {
           onAction: () => alert('Archive action'),
           disabled: !secondaryActionsEnabled,
         },
-        {
-          content: 'Delete',
-          icon: DeleteMinor,
-          destructive: true,
-          accessibilityLabel: 'Secondary action label',
-          onAction: () => alert('Delete action'),
-          disabled: !secondaryActionsEnabled,
-        },
+        // {
+        //   content: 'Delete',
+        //   icon: DeleteMinor,
+        //   destructive: true,
+        //   accessibilityLabel: 'Secondary action label',
+        //   onAction: () => alert('Delete action'),
+        //   disabled: !secondaryActionsEnabled,
+        // },
       ]}
     >
       {contentToRender}

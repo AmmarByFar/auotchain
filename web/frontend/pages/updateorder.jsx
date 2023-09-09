@@ -17,8 +17,8 @@ import {
 import CreateOrderProductList from '../components/CreateOrderProductList';
 import ShipmentInvoice from '../components/CreateOrder/ShipmentInvoice';
 import { useAuthenticatedFetch } from '@shopify/app-bridge-react';
-import useCreateOrder from '../hooks/useCreateOrder';
 import useUsers from '../hooks/useUsers';
+import useUpdateOrder from '../hooks/useUpdateOrder';
 
 const currentDate = new Date();
 function validateFields(data) {
@@ -29,13 +29,17 @@ function validateFields(data) {
   }
   return true;
 }
-export default function CreateOrder() {
-  const fetch = useAuthenticatedFetch();
-  const { createOrder } = useCreateOrder(fetch);
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [selectedProducts, setSelectedProducts] = useState(
-    location.state?.selectedProducts || []
+export default function UpdateOrder() {
+    const fetch = useAuthenticatedFetch();
+    const { orderId } = useParams();
+    const { updateOrder } = useUpdateOrder(fetch);
+
+    const { isLoading, data, error } = useAppQuery({ url: `/api/order/${orderId}` });
+
+    const navigate = useNavigate();
+    const location = useLocation();
+    const [selectedProducts, setSelectedProducts] = useState(
+    data?.orderItems || []
   );
   const [orderData, setOrderData] = useState({
     shopDomain: '',
@@ -83,6 +87,15 @@ export default function CreateOrder() {
     setOrderDateValues({ orderDateMonth: month, orderDateYear: year });
   }
 
+  if (!isLoading && data) {
+    setOrderData(data);
+  }
+
+  if (!isLoading && error) {
+    console.log(error);
+    contentToRender = <div>Error occured!</div>;
+  }
+
   const handleSubmit = async () => {
     const payload = {
       orderDate: orderDate.toISOString(),
@@ -90,7 +103,6 @@ export default function CreateOrder() {
       supplierID: orderData.supplierID,
       warehouseManagerID: orderData.warehouseManagerID,
       items: selectedProducts.map((product) => ({
-        productId: product.id,
         SKU: product.sku,
         quantity: product.orderAmount,
       })),
@@ -127,21 +139,21 @@ export default function CreateOrder() {
 
     console.log(payload);
     // Call API to create the order, shipment, and invoice using orderData
-    const result = await createOrder(formData);
+    const result = await updateOrder(orderId, formData);
 
-    console.log('order create result', result);
+    console.log('update order result', result);
   };
 
   return (
     <Page
       fullWidth
       backAction={{
-        content: 'Orders',
-        url: location?.state?.previousPath || '/orders',
+        content: 'Update Order',
+        url: location?.state?.previousPath || '/updateorder',
       }}
-      title="New Purchase Order"
+      title="Update Purchase Order"
       primaryAction={{
-        content: 'Create Purchase Order',
+        content: 'Update Purchase Order',
         onAction: handleSubmit,
         disabled: isAllFieldDisabled,
       }}
@@ -181,7 +193,6 @@ export default function CreateOrder() {
                     setOrderData(prevState => ({ ...prevState, warehouseManagerID: value }))
                   }
                 />
-
                 <Popover
                   active={orderDateVisible}
                   autofocusTarget="none"

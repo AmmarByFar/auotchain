@@ -111,6 +111,7 @@ function ProductsList() {
       return {
         onHand: product.onHand,
         sku: product.sku,
+        productId: product.id
       };
     });
     setIsSaving(true);

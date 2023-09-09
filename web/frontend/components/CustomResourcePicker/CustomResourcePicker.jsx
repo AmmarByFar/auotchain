@@ -55,8 +55,8 @@ export default function CustomResourcePicker({
     for(const obj of selectedItems){
       uniqueProductsMap.set(obj.sku, obj)
     }
-    const uniqueArrrayOfProducts  = Array.from(uniqueProductsMap.values());
-    setSelectedProducts(uniqueArrrayOfProducts);
+    const uniqueArrayOfProducts  = Array.from(uniqueProductsMap.values());
+    setSelectedProducts(uniqueArrayOfProducts);
   }
 
   return (
